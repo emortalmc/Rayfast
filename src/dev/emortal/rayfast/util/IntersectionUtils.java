@@ -1,12 +1,12 @@
 package dev.emortal.rayfast.util;
 
-import dev.emortal.rayfast.grid.GridCast;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Predicate;
-
+/**
+ * Internal Intersection Utils.
+ *
+ * INTERNAL ONLY.
+ * If any issues arise using this class, that's on you.
+ */
+@Deprecated(forRemoval = false)
 public class IntersectionUtils {
 
     public static boolean forwardIntersectsPlane(
@@ -222,37 +222,5 @@ public class IntersectionUtils {
         double z = posZ + (dirZ * t);
         return new double[] {x, y, z};
         */
-    }
-
-    public static List<double[]> blockRaycast(
-            // Line
-            double posX, double posY, double posZ, // Position vector
-            double dirX, double dirY, double dirZ, // Direction vector
-            Predicate<double[]> isValid,
-            Predicate<double[]> shouldStop,
-            double maxLength
-    ) {
-        List<double[]> positions = new LinkedList<>();
-
-        Iterator<double[]> interator = GridCast.createGridIterator(
-                posX, posY, posZ,
-                dirX, dirY, dirZ,
-                1.0,
-                maxLength
-        );
-
-        while(interator.hasNext()) {
-            double[] nextBlock = interator.next();
-
-            if (isValid.test(nextBlock)) {
-                positions.add(nextBlock);
-            }
-
-            if (shouldStop.test(nextBlock)) {
-                return positions;
-            }
-        }
-
-        return positions;
     }
 }
