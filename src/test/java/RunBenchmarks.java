@@ -1,6 +1,6 @@
-import org.emortal.rayfast.area.area3d.Area3d;
-import org.emortal.rayfast.area.area3d.Area3dRectangularPrism;
-import org.emortal.rayfast.grid.GridCast;
+import dev.emortal.rayfast.area.area3d.Area3d;
+import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
+import dev.emortal.rayfast.grid.GridCast;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;

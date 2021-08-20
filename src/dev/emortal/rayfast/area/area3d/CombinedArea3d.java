@@ -1,4 +1,4 @@
-package org.emortal.rayfast.area.area3d;
+package dev.emortal.rayfast.area.area3d;
 
 import java.util.ArrayList;
 import java.util.Arrays;

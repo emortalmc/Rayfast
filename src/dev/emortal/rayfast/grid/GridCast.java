@@ -1,4 +1,4 @@
-package org.emortal.rayfast.grid;
+package dev.emortal.rayfast.grid;
 
 import java.util.Iterator;
 

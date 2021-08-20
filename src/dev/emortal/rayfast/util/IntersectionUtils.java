@@ -1,6 +1,6 @@
-package org.emortal.rayfast.util;
+package dev.emortal.rayfast.util;
 
-import org.emortal.rayfast.grid.GridCast;
+import dev.emortal.rayfast.grid.GridCast;
 
 import java.util.Iterator;
 import java.util.LinkedList;

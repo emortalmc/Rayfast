@@ -1,4 +1,4 @@
-package org.emortal.rayfast.util;
+package dev.emortal.rayfast.util;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

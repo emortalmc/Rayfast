@@ -1,4 +1,4 @@
-package org.emortal.rayfast.area.area3d;
+package dev.emortal.rayfast.area.area3d;
 
 public class Area3dRectangularPrism implements Area3d {
 

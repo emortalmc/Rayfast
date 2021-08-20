@@ -1,7 +1,7 @@
-package org.emortal.rayfast.area.area3d;
+package dev.emortal.rayfast.area.area3d;
 
-import org.emortal.rayfast.util.Converter;
-import org.emortal.rayfast.util.IntersectionUtils;
+import dev.emortal.rayfast.util.Converter;
+import dev.emortal.rayfast.util.IntersectionUtils;
 
 /**
  * Specifies an object that can represent some arbitrary 3d area.
