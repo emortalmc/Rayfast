@@ -1,0 +1,258 @@
+package org.emortal.rayfast.util;
+
+import org.emortal.rayfast.grid.GridCast;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class IntersectionUtils {
+
+    public static boolean forwardIntersectsPlane(
+        // Line
+        double posX, double posY, double posZ, // Position vector
+        double dirX, double dirY, double dirZ, // Direction vector
+        // Plane
+        double minX, double minY, double minZ,
+        double adjX, double adjY, double adjZ,
+        double maxX, double maxY, double maxZ
+
+        ) {
+
+        double[] arr = getIntersection(
+                posX, posY, posZ,
+                dirX, dirY, dirZ,
+
+                minX, minY, minZ,
+                adjX, adjY, adjZ,
+                maxX, maxY, maxZ
+        );
+
+        double x = arr[0];
+        double y = arr[1];
+        double z = arr[2];
+
+        int fits = 0;
+
+        if ((minX != maxX) && isBetweenUnordered(x, minX, maxX)) {
+            fits++;
+        }
+
+        if ((minY != maxY) && isBetweenUnordered(y, minY, maxY)) {
+            fits++;
+        }
+
+        if ((minZ != maxZ) && isBetweenUnordered(z, minZ, maxZ)) {
+            fits++;
+        }
+
+        if (fits < 2) {
+            return false;
+        }
+
+        // a = x y z
+        // p = posX, posY, posZ
+        // n = dirX, dirY, dirZ
+        double dotProduct = getDot(dirX, dirY, dirZ, x - posX, y - posY, z - posZ);
+
+        return dotProduct > 0;
+    }
+
+    public static boolean isBetween(double number, double min, double max) {
+        return number >= min && number <= max;
+    }
+
+    public static boolean isBetweenUnordered(double number, double compare1, double compare2) {
+        if (compare1 > compare2) {
+            return isBetween(number, compare2, compare1);
+        }
+        return isBetween(number, compare1, compare2);
+    }
+
+    /**
+     * Gets the intersections of the specified line with the specified planes
+     *
+     * @param dirX   Line Direction X
+     * @param dirY   Line Direction Y
+     * @param dirZ   Line Direction Z
+     * @param posX   Line Position X
+     * @param posY   Line Position Y
+     * @param posZ   Line Position Z
+     * @param planes   Array of planes. Each plane contains 3 X, Y, and Z coordinates, with 9 elements in total. Example:
+     * @<code>
+     * {
+     *   {
+     *     1.3, -5.9, 3.0,
+     *     1.1, -5.3, 3.4,
+     *     0.3, -3.9, 3.2,
+     *   }
+     * }
+     * </code>
+     * @return Array of intersection positions.
+     */
+    public static double[][] intersectPlanes(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Planes
+            double[]... planes
+    ) {
+        double[][] positions = new double[planes.length][3];
+
+        for (int i = 0; i < planes.length; i++) {
+
+            double[] plane = planes[i];
+
+            // Get intersection and add to array
+            double[] position = getIntersection(
+                    // Line
+                    posX, posY, posZ,
+                    dirX, dirY, dirZ,
+                    // Plane
+                    plane[0], plane[1], plane[2],
+                    plane[3], plane[4], plane[5],
+                    plane[6], plane[7], plane[8]
+            );
+
+            positions[i] = position;
+        }
+
+        return positions;
+    }
+
+    public static double[] getIntersection(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Plane
+            double planeX, double planeY, double planeZ, // Plane point
+            double planeDirX, double planeDirY, double planeDirZ // Plane normal
+    ) {
+        double dotA = getDot(planeDirX, planeDirY, planeDirZ, planeX, planeY, planeZ);
+        double dotB = getDot(planeDirX, planeDirY, planeDirZ, posX, posY, posZ);
+        double dotC = getDot(planeDirX, planeDirY, planeDirZ, dirX, dirY, dirZ);
+        double t = (dotA - dotB) / dotC;
+
+        double x = posX + (dirX * t);
+        double y = posY + (dirY * t);
+        double z = posZ + (dirZ * t);
+
+        return new double[] {x, y, z};
+    }
+
+    private static double getDot(
+            double x, double y, double z,
+            double vecX, double vecY, double vecZ
+    ) {
+        return x * vecX + y * vecY + z * vecZ;
+    }
+
+    public static double[] getIntersection(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Plane
+            double minX, double minY, double minZ,
+            double adjX, double adjY, double adjZ,
+            double maxX, double maxY, double maxZ
+    ) {
+
+        double v1x = minX - adjX;
+        double v1y = minY - adjY;
+        double v1z = minZ - adjZ;
+        double v2x = minX - maxX;
+        double v2y = minY - maxY;
+        double v2z = minZ - maxZ;
+
+        double crossX = v1y * v2z - v2y * v1z;
+        double crossY = v1z * v2x - v2z * v1x;
+        double crossZ = v1x * v2y - v2x * v1y;
+
+        return getIntersection(
+                // Line
+                posX, posY, posZ,
+                dirX, dirY, dirZ,
+                // Plane
+                minX, minY, minZ,
+                crossX, crossY, crossZ
+        );
+
+        // TODO: fix this (faster) method
+        /*
+        System.out.println("LINE:");
+        System.out.println("DIR: " + dirX + ":" + dirY + ":" + dirZ);
+        System.out.println("POS: " + posX + ":" + posY + ":" + posZ);
+
+        double ABx = maxX - minX;
+        double ABy = maxY - minY;
+        double ABz = maxZ - minZ;
+
+        double ACx = adjX - minX;
+        double ACy = adjY - minY;
+        double ACz = adjZ - minZ;
+
+        double perpenX = ABy * ACz - ACy * ABz;
+        double perpenY = ACx * ABz - ABx * ACz;
+        double perpenZ = ABx * ACy - ACx * ABy;
+
+        // Line equation: r = pos + t * dir
+        // x = posX + (dirX * t)
+        // y = posY + (dirY * t)
+        // z = posZ + (dirZ * t)
+
+        // Plane equation
+        // 0 = pointX(x - perpenX) + pointY(y - perpenY) + pointZ(z - perpenZ)
+        // 0 = pointX(posX + (dirX * t) - perpenX) + pointY(posY + (dirY * t) - perpenY) + pointZ(posZ + (dirZ * t) - perpenZ)
+
+        // Combine equations to find t (distance to point)
+        // 0 = g(d + (a * t) - j) + h(e + (b * t) - k) + i(f + (c * t) - l)
+        // t = (-dg+jg-if-eh+li+kh) / (ag+bh+ci)
+        double t = (-posX * adjX + perpenX * adjX - adjZ * posZ - posY * adjY + perpenZ * adjZ + perpenY * adjY) / (dirX * adjX + dirY * adjY + dirZ * adjZ);
+
+        // A = -B * C
+
+        // Now use t to get the point
+        // x = posX + (dirX * t)
+        // y = posY + (dirY * t)
+        // z = posZ + (dirZ * t)
+
+        double x = posX + (dirX * t);
+        double y = posY + (dirY * t);
+        double z = posZ + (dirZ * t);
+        return new double[] {x, y, z};
+        */
+    }
+
+    public static List<double[]> blockRaycast(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            Predicate<double[]> isValid,
+            Predicate<double[]> shouldStop,
+            double maxLength
+    ) {
+        List<double[]> positions = new LinkedList<>();
+
+        Iterator<double[]> interator = GridCast.createGridIterator(
+                posX, posY, posZ,
+                dirX, dirY, dirZ,
+                1.0,
+                maxLength
+        );
+
+        while(interator.hasNext()) {
+            double[] nextBlock = interator.next();
+
+            if (isValid.test(nextBlock)) {
+                positions.add(nextBlock);
+            }
+
+            if (shouldStop.test(nextBlock)) {
+                return positions;
+            }
+        }
+
+        return positions;
+    }
+}
