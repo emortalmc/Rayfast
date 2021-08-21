@@ -5,8 +5,10 @@ import dev.emortal.rayfast.grid.GridCast;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class RunBenchmarks {
+
     public static void main(String[] args) {
         {
             long startMillis = System.currentTimeMillis();
@@ -42,14 +44,15 @@ public class RunBenchmarks {
         System.out.println("Finished after " + (System.currentTimeMillis() - startMillis) + "ms");
 
         {
-            startMillis = System.currentTimeMillis();
+            long millis = System.currentTimeMillis();
 
-            combined.lineIntersects(
+            for (int i = 0; i < 500; i++)
+            combined.lineIntersection(
                     Math.random(), Math.random(), Math.random(),
                     Math.random(), Math.random(), Math.random()
             );
 
-            System.out.println("took " + (System.currentTimeMillis() - startMillis) + "ms to intersect 1 mil rectangular prisms");
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 1 mil rectangular prisms");
         }
     }
 }

@@ -9,17 +9,46 @@ package dev.emortal.rayfast.util;
 @Deprecated(forRemoval = false)
 public class IntersectionUtils {
 
-    public static boolean forwardIntersectsPlane(
-        // Line
-        double posX, double posY, double posZ, // Position vector
-        double dirX, double dirY, double dirZ, // Direction vector
-        // Plane
-        double minX, double minY, double minZ,
-        double adjX, double adjY, double adjZ,
-        double maxX, double maxY, double maxZ
+    public static double[] forwardPlaneIntersection(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Plane
+            double minX, double minY, double minZ,
+            double adjX, double adjY, double adjZ,
+            double maxX, double maxY, double maxZ
+    ) {
+        double[] pos = planeIntersection(
+                posX, posY, posZ,
+                dirX, dirY, dirZ,
+                minX, minY, minZ,
+                adjX, adjY, adjZ,
+                maxX, maxY, maxZ
+        );
 
-        ) {
+        if (pos == null) {
+            return null;
+        }
 
+        // Check if position is forwards
+        double dotProduct = getDot(dirX, dirY, dirZ, pos[0] - posX, pos[1] - posY, pos[2] - posZ);
+
+        if (dotProduct > 0) {
+            return pos;
+        }
+
+        return null;
+    }
+
+    public static double[] planeIntersection(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Plane
+            double minX, double minY, double minZ,
+            double adjX, double adjY, double adjZ,
+            double maxX, double maxY, double maxZ
+    ) {
         double[] arr = getIntersection(
                 posX, posY, posZ,
                 dirX, dirY, dirZ,
@@ -48,16 +77,12 @@ public class IntersectionUtils {
         }
 
         if (fits < 2) {
-            return false;
+            return null;
         }
 
-        // a = x y z
-        // p = posX, posY, posZ
-        // n = dirX, dirY, dirZ
-        double dotProduct = getDot(dirX, dirY, dirZ, x - posX, y - posY, z - posZ);
-
-        return dotProduct > 0;
+        return new double[] {x, y, z};
     }
+
 
     public static boolean isBetween(double number, double min, double max) {
         return number >= min && number <= max;
@@ -129,6 +154,7 @@ public class IntersectionUtils {
             double planeX, double planeY, double planeZ, // Plane point
             double planeDirX, double planeDirY, double planeDirZ // Plane normal
     ) {
+        // Sensitive (speed oriented) code:
         double dotA = getDot(planeDirX, planeDirY, planeDirZ, planeX, planeY, planeZ);
         double dotB = getDot(planeDirX, planeDirY, planeDirZ, posX, posY, posZ);
         double dotC = getDot(planeDirX, planeDirY, planeDirZ, dirX, dirY, dirZ);

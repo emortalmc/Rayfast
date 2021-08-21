@@ -3,8 +3,10 @@ package dev.emortal.rayfast.area.area3d;
 import dev.emortal.rayfast.util.Converter;
 import dev.emortal.rayfast.util.IntersectionUtils;
 
+import java.util.Collection;
+
 /**
- * Specifies an object that can represent some arbitrary 3d area.
+ * Specifies an object that represents some arbitrary 3d area.
  */
 
 public interface Area3d {
@@ -19,17 +21,21 @@ public interface Area3d {
      * @param dirX line X direction
      * @param dirY line Y direction
      * @param dirZ line Z direction
-     * @return
+     * @return the computed line intersection position, null if none
      */
-    default boolean lineIntersects(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
+    default double[] lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
+        // Update and get planes
+        if (isUpdatable()) {
+            updatePlanes();
+        }
         double[][] planes = getPlanes();
 
         if (planes.length == 0) {
-            return false;
+            return null;
         }
 
         for (double[] plane : planes) {
-            boolean intersects = IntersectionUtils.forwardIntersectsPlane(
+            double[] intersection = IntersectionUtils.forwardPlaneIntersection(
                     // Line
                     posX, posY, posZ,
                     dirX, dirY, dirZ,
@@ -39,13 +45,13 @@ public interface Area3d {
                     plane[6], plane[7], plane[8]
             );
 
-            if (intersects) {
-                return true;
+            if (intersection != null) {
+                return intersection;
             }
         }
 
-        return false;
-    };
+        return null;
+    }
 
     /**
      * Gets the planes used by this object for intersection purposes
@@ -55,12 +61,40 @@ public interface Area3d {
     double[][] getPlanes();
 
     /**
-     * Creates a combined area3d of all the planes contained in the areas passed to this function
+     * Updates the planes array object returned by {@link Area3d#getPlanes()}
+     */
+    void updatePlanes();
+
+    /**
+     * Gets whether this area accepts updates
+     *
+     * @return whether this area accepts updates
+     */
+    boolean isUpdatable();
+
+    /**
+     * Creates a combined area3d of all the planes contained in the areas passed to this function, accounting for
+     * dynamism if applicable.
+     * <br><br>
+     * This method will produce a CombinedArea3d or DynamicCombinedArea3d, depending on which
      *
      * @param area3ds the area3ds to take the planes from
-     * @return the new combined area3d
+     * @return the new CombinedArea3d or DynamicCombinedArea3d
      */
-    static CombinedArea3d combined(Area3d... area3ds) {
-        return new CombinedArea3d(area3ds);
+    static Area3dCombined combined(Area3d... area3ds) {
+        return new Area3dCombined(area3ds);
+    }
+
+    /**
+     * Creates a combined area3d of all the planes contained in the areas passed to this function, accounting for
+     * dynamism if applicable.
+     * <br><br>
+     * This method will produce a CombinedArea3d or DynamicCombinedArea3d, depending on which
+     *
+     * @param area3ds the area3ds to take the planes from
+     * @return the new CombinedArea3d or DynamicCombinedArea3d
+     */
+    static Area3dCombined combined(Collection<Area3d> area3ds) {
+        return new Area3dCombined(area3ds);
     }
 }
