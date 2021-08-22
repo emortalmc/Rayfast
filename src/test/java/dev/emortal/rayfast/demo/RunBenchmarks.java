@@ -1,8 +1,9 @@
+package dev.emortal.rayfast.demo;
+
 import dev.emortal.rayfast.area.area3d.Area3d;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
 import dev.emortal.rayfast.grid.GridCast;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -12,47 +13,40 @@ public class RunBenchmarks {
 
     public static void main(String[] args) {
 
-
-        Area3d.CONVERTER.register(Entity.class, entity ->
-            new Area3d() {
-                @Override
-                public double[] lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
-                    return new double[0];
-                }
-            }
-        );
+        // Register entity to rayfast converter
+        Area3d.CONVERTER.register(Entity.class, Entity::getBoundingBox);
 
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
 
         Area3d[] area3ds = new Area3d[1000];
 
-        Arrays.fill(area3ds, new Area3dRectangularPrism() {
+        // Create new entity
+        Entity entity = new Entity() {
+            private final BoundingBox box = new BoundingBox(this, 123, 456, 789);
+
             @Override
-            public double getMinX() {
+            public BoundingBox getBoundingBox() {
+                return box;
+            }
+
+            @Override
+            public double getX() {
                 return Math.random();
             }
+
             @Override
-            public double getMinY() {
+            public double getY() {
                 return Math.random();
             }
+
             @Override
-            public double getMinZ() {
+            public double getZ() {
                 return Math.random();
             }
-            @Override
-            public double getMaxX() {
-                return Math.random();
-            }
-            @Override
-            public double getMaxY() {
-                return Math.random();
-            }
-            @Override
-            public double getMaxZ() {
-                return Math.random();
-            }
-        });
+        };
+
+        Arrays.fill(area3ds, Area3d.CONVERTER.from(entity));
 
         combined = Area3d.combined(area3ds);
 

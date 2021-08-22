@@ -40,10 +40,10 @@ public class Converter<C> {
         Class<?> clazz = originalClazz;
 
         while (clazz != null) {
+
             Function<Object, C> convertingFunction = (Function<Object, C>) convertingFunctions.get(clazz);
 
             if (convertingFunction != null) {
-
                 if (clazz != originalClazz) {
                     convertingFunctions.put(originalClazz, convertingFunction);
                 }
@@ -54,6 +54,6 @@ public class Converter<C> {
             clazz = clazz.getSuperclass();
         }
 
-        throw new IllegalArgumentException("object provided to Converter#from did not have a registered converter");
+        throw new IllegalArgumentException(originalClazz.getName() + "object provided to Converter#from did not have a registered converter");
     }
 }
