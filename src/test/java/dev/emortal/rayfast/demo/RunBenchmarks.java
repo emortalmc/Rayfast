@@ -79,22 +79,25 @@ public class RunBenchmarks {
         Iterator<double[]> iterator = GridCast.createGridIterator(
                 Math.random(), Math.random(), Math.random(),
                 Math.random(), Math.random(), Math.random(),
-                1.0,
-                1_000_000
+                1,
+                100_000
         );
+
+        int i = 0;
 
         while (iterator.hasNext()) {
             iterator.next();
+            i++;
         }
 
-        System.out.println("took " + (System.currentTimeMillis() - startMillis) + "ms to iterate over 1 mil blocks");
+        System.out.println("took " + (System.currentTimeMillis() - startMillis) + "ms to iterate over " + i + " grid units (1x1 cubes)");
     }
 
     private static void benchmarkArea3d() {
         {
             long millis = System.currentTimeMillis();
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 100_000; i++)
                 interfacedCombined.lineIntersection(
                         Math.random(), Math.random(), Math.random(),
                         Math.random(), Math.random(), Math.random()
@@ -106,7 +109,7 @@ public class RunBenchmarks {
         {
             long millis = System.currentTimeMillis();
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 100_000; i++)
                 wrapperCombined.lineIntersection(
                         Math.random(), Math.random(), Math.random(),
                         Math.random(), Math.random(), Math.random()
