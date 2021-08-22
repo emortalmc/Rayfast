@@ -10,7 +10,7 @@ import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
  *
  * This is an ideal situation for rayfast.
  */
-public abstract class Entity {
+public abstract class ExampleRaycastEntity {
 
     abstract BoundingBox getBoundingBox();
 
@@ -20,13 +20,13 @@ public abstract class Entity {
 
     class BoundingBox implements Area3dRectangularPrism {
 
-        private final Entity entity;
+        private final ExampleRaycastEntity exampleRaycastEntity;
         private final double halfWidth;
         private final double halfHeight;
         private final double halfDepth;
 
-        public BoundingBox(Entity entity, double width, double height, double depth) {
-            this.entity = entity;
+        public BoundingBox(ExampleRaycastEntity exampleRaycastEntity, double width, double height, double depth) {
+            this.exampleRaycastEntity = exampleRaycastEntity;
             this.halfWidth = width / 2.0;
             this.halfHeight = height / 2.0;
             this.halfDepth = depth / 2.0;
@@ -34,27 +34,27 @@ public abstract class Entity {
 
         // Coordinates
         public double getMinX() {
-            return entity.getX() - halfWidth;
+            return exampleRaycastEntity.getX() - halfWidth;
         }
 
         public double getMinY() {
-            return entity.getY() - halfHeight;
+            return exampleRaycastEntity.getY() - halfHeight;
         }
 
         public double getMinZ() {
-            return entity.getZ() - halfDepth;
+            return exampleRaycastEntity.getZ() - halfDepth;
         }
 
         public double getMaxX() {
-            return entity.getX() + halfWidth;
+            return exampleRaycastEntity.getX() + halfWidth;
         }
 
         public double getMaxY() {
-            return entity.getY() + halfHeight;
+            return exampleRaycastEntity.getY() + halfHeight;
         }
 
         public double getMaxZ() {
-            return entity.getZ() + halfDepth;
+            return exampleRaycastEntity.getZ() + halfDepth;
         }
     }
 }

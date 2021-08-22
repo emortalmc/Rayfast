@@ -15,7 +15,7 @@ public class RunBenchmarks {
     public static void main(String[] args) {
 
         // Register entity to rayfast converter
-        Area3d.CONVERTER.register(Entity.class, Entity::getBoundingBox);
+        Area3d.CONVERTER.register(ExampleRaycastEntity.class, ExampleRaycastEntity::getBoundingBox);
 
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
@@ -23,7 +23,7 @@ public class RunBenchmarks {
         Area3d[] interfaced = new Area3d[1000];
 
         // Create new entity
-        Entity entity = new Entity() {
+        ExampleRaycastEntity exampleRaycastEntity = new ExampleRaycastEntity() {
             private final BoundingBox box = new BoundingBox(this, 123, 456, 789);
 
             @Override
@@ -47,7 +47,7 @@ public class RunBenchmarks {
             }
         };
 
-        Arrays.fill(interfaced, Area3d.CONVERTER.from(entity));
+        Arrays.fill(interfaced, Area3d.CONVERTER.from(exampleRaycastEntity));
 
         interfacedCombined = Area3d.combined(interfaced);
 
@@ -55,13 +55,13 @@ public class RunBenchmarks {
         Area3d[] wrappers = new Area3d[1000];
 
         Arrays.fill(wrappers, Area3dRectangularPrism.wrapper(
-                entity.getBoundingBox(),
-                Entity.BoundingBox::getMinX,
-                Entity.BoundingBox::getMinY,
-                Entity.BoundingBox::getMinZ,
-                Entity.BoundingBox::getMaxX,
-                Entity.BoundingBox::getMaxY,
-                Entity.BoundingBox::getMaxZ
+                exampleRaycastEntity.getBoundingBox(),
+                ExampleRaycastEntity.BoundingBox::getMinX,
+                ExampleRaycastEntity.BoundingBox::getMinY,
+                ExampleRaycastEntity.BoundingBox::getMinZ,
+                ExampleRaycastEntity.BoundingBox::getMaxX,
+                ExampleRaycastEntity.BoundingBox::getMaxY,
+                ExampleRaycastEntity.BoundingBox::getMaxZ
         ));
 
         wrapperCombined = Area3d.combined(wrappers);
