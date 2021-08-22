@@ -1,3 +1,5 @@
+NOTE: Rayfast is still in development and is not completely stable api-wise. GridCasting likely will not change, however Area3d's may have some improvements on the way.
+
 # Rayfast
 A wayfast raycast java library.
 
