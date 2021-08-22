@@ -9,7 +9,8 @@ import java.util.Iterator;
 
 public class RunBenchmarks {
 
-    private static Area3d combined;
+    private static Area3d interfacedCombined;
+    private static Area3d wrapperCombined;
 
     public static void main(String[] args) {
 
@@ -19,7 +20,7 @@ public class RunBenchmarks {
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
 
-        Area3d[] area3ds = new Area3d[1000];
+        Area3d[] interfaced = new Area3d[1000];
 
         // Create new entity
         Entity entity = new Entity() {
@@ -46,9 +47,25 @@ public class RunBenchmarks {
             }
         };
 
-        Arrays.fill(area3ds, Area3d.CONVERTER.from(entity));
+        Arrays.fill(interfaced, Area3d.CONVERTER.from(entity));
 
-        combined = Area3d.combined(area3ds);
+        interfacedCombined = Area3d.combined(interfaced);
+
+
+        Area3d[] wrappers = new Area3d[1000];
+
+        Arrays.fill(wrappers, Area3dRectangularPrism.wrapper(
+                entity.getBoundingBox(),
+                Entity.BoundingBox::getMinX,
+                Entity.BoundingBox::getMinY,
+                Entity.BoundingBox::getMinZ,
+                Entity.BoundingBox::getMaxX,
+                Entity.BoundingBox::getMaxY,
+                Entity.BoundingBox::getMaxZ
+        ));
+
+        wrapperCombined = Area3d.combined(wrappers);
+
 
         System.out.println("Finished after " + (System.currentTimeMillis() - startMillis) + "ms");
 
@@ -74,14 +91,28 @@ public class RunBenchmarks {
     }
 
     private static void benchmarkArea3d() {
-        long millis = System.currentTimeMillis();
+        {
+            long millis = System.currentTimeMillis();
 
-        for (int i = 0; i < 1000; i++)
-            combined.lineIntersection(
-                    Math.random(), Math.random(), Math.random(),
-                    Math.random(), Math.random(), Math.random()
-            );
+            for (int i = 0; i < 100000; i++)
+                interfacedCombined.lineIntersection(
+                        Math.random(), Math.random(), Math.random(),
+                        Math.random(), Math.random(), Math.random()
+                );
 
-        System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 1 mil rectangular prisms");
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100 mil interfaced rectangular prisms");
+        }
+
+        {
+            long millis = System.currentTimeMillis();
+
+            for (int i = 0; i < 100000; i++)
+                wrapperCombined.lineIntersection(
+                        Math.random(), Math.random(), Math.random(),
+                        Math.random(), Math.random(), Math.random()
+                );
+
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100 mil wrapped rectangular prisms");
+        }
     }
 }
