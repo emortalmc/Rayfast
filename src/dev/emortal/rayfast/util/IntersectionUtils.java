@@ -31,7 +31,7 @@ public class IntersectionUtils {
         }
 
         // Check if position is forwards
-        double dotProduct = getDot(dirX, dirY, dirZ, pos[0] - posX, pos[1] - posY, pos[2] - posZ);
+        double dotProduct = dirX * (pos[0] - posX) + dirY * (pos[1] - posY) + dirZ * (pos[2] - posZ);
 
         if (dotProduct > 0) {
             return pos;
@@ -155,9 +155,9 @@ public class IntersectionUtils {
             double planeDirX, double planeDirY, double planeDirZ // Plane normal
     ) {
         // Sensitive (speed oriented) code:
-        double dotA = getDot(planeDirX, planeDirY, planeDirZ, planeX, planeY, planeZ);
-        double dotB = getDot(planeDirX, planeDirY, planeDirZ, posX, posY, posZ);
-        double dotC = getDot(planeDirX, planeDirY, planeDirZ, dirX, dirY, dirZ);
+        double dotA = planeDirX * planeX + planeDirY * planeY + planeDirZ * planeZ;
+        double dotB = planeDirX * posX + planeDirY * posY + planeDirZ * posZ;
+        double dotC = planeDirX * dirX + planeDirY * dirY + planeDirZ * dirZ;
         double t = (dotA - dotB) / dotC;
 
         double x = posX + (dirX * t);
