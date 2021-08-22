@@ -1,3 +1,5 @@
+package dev.emortal.rayfast.demo;
+
 import dev.emortal.rayfast.area.area3d.Area3d;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
 import dev.emortal.rayfast.grid.GridCast;
@@ -10,15 +12,41 @@ public class RunBenchmarks {
     private static Area3d combined;
 
     public static void main(String[] args) {
+
+        // Register entity to rayfast converter
+        Area3d.CONVERTER.register(Entity.class, Entity::getBoundingBox);
+
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
 
         Area3d[] area3ds = new Area3d[1000];
 
-        Arrays.fill(area3ds, new Area3dRectangularPrism(
-                Math.random(), Math.random(), Math.random(),
-                Math.random(), Math.random(), Math.random()
-        ));
+        // Create new entity
+        Entity entity = new Entity() {
+            private final BoundingBox box = new BoundingBox(this, 123, 456, 789);
+
+            @Override
+            public BoundingBox getBoundingBox() {
+                return box;
+            }
+
+            @Override
+            public double getX() {
+                return Math.random();
+            }
+
+            @Override
+            public double getY() {
+                return Math.random();
+            }
+
+            @Override
+            public double getZ() {
+                return Math.random();
+            }
+        };
+
+        Arrays.fill(area3ds, Area3d.CONVERTER.from(entity));
 
         combined = Area3d.combined(area3ds);
 
@@ -48,12 +76,12 @@ public class RunBenchmarks {
     private static void benchmarkArea3d() {
         long millis = System.currentTimeMillis();
 
-        for (int i = 0; i < 100_000; i++)
+        for (int i = 0; i < 1000; i++)
             combined.lineIntersection(
                     Math.random(), Math.random(), Math.random(),
                     Math.random(), Math.random(), Math.random()
             );
 
-        System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100 mil rectangular prisms");
+        System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 1 mil rectangular prisms");
     }
 }
