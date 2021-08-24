@@ -12,7 +12,7 @@ public interface Area3d {
     Converter<Area3d> CONVERTER = new Converter<>();
 
     /**
-     * Returns true if the specified line intersects this object.
+     * Returns the intersection between the specified line and this object.
      * <br><br>
      * @param posX line X position
      * @param posY line Y position
@@ -23,6 +23,21 @@ public interface Area3d {
      * @return the computed line intersection position, null if none
      */
     double[] lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ);
+
+    /**
+     * Returns true if the specified line intersects this object.
+     * <br><br>
+     * @param posX line X position
+     * @param posY line Y position
+     * @param posZ line Z position
+     * @param dirX line X direction
+     * @param dirY line Y direction
+     * @param dirZ line Z direction
+     * @return the computed line intersection position, null if none
+     */
+    default boolean lineIntersects(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
+        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ) != null;
+    };
 
     /**
      * Creates a combined area3d of all the planes contained in the areas passed to this function, accounting for
