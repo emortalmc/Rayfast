@@ -17,7 +17,7 @@ public class GridCast {
      * @param dirZ iterator direction Z
      * @return the iterator
      */
-    public static Iterator<double[]> createGridIterator(
+    public static GridIterator createGridIterator(
             double startX,
             double startY,
             double startZ,
@@ -35,7 +35,7 @@ public class GridCast {
      * @param dir iterator direction
      * @return the iterator
      */
-    public static Iterator<double[]> createGridIterator(
+    public static GridIterator createGridIterator(
             Vector3d start,
             Vector3d dir
     ) {
@@ -56,7 +56,7 @@ public class GridCast {
      * @param length the maximum length of the iterator
      * @return the iterator
      */
-    public static Iterator<double[]> createGridIterator(
+    public static GridIterator createGridIterator(
             double startX,
             double startY,
             double startZ,
@@ -79,7 +79,7 @@ public class GridCast {
      * @param length the maximum length of the iterator
      * @return the iterator
      */
-    public static Iterator<double[]> createGridIterator(
+    public static GridIterator createGridIterator(
             Vector3d start,
             Vector3d dir,
             double gridSize,
@@ -103,7 +103,7 @@ public class GridCast {
      * @param length the maximum length of the iterator
      * @return the iterator
      */
-    public static Iterator<double[]> createExactGridIterator(
+    public static GridIterator createExactGridIterator(
             double startX,
             double startY,
             double startZ,
@@ -168,11 +168,6 @@ public class GridCast {
             this.posY += dirY * lowest;
             this.posZ += dirZ * lowest;
 
-//            System.out.println(posX);
-//            System.out.println(posY);
-//            System.out.println(posZ);
-//            System.out.println(lowest);
-
             // Add length to current
             currentLength += lowest;
 
@@ -189,7 +184,7 @@ public class GridCast {
         }
     }
 
-    private static class ExactGridIterator extends GridIterator implements Iterator<double[]> {
+    private static class ExactGridIterator extends GridIterator {
         protected ExactGridIterator(double startX, double startY, double startZ, double dirX, double dirY, double dirZ, double gridSize, double length) {
             super(startX, startY, startZ, dirX, dirY, dirZ, gridSize, length);
         }
@@ -208,11 +203,6 @@ public class GridCast {
             this.posX += dirX * lowest;
             this.posY += dirY * lowest;
             this.posZ += dirZ * lowest;
-
-//            System.out.println(posX);
-//            System.out.println(posY);
-//            System.out.println(posZ);
-//            System.out.println(lowest);
 
             // Add length to current
             currentLength += lowest;
