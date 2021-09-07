@@ -1,5 +1,7 @@
 package dev.emortal.rayfast.grid;
 
+import dev.emortal.rayfast.util.Vector3d;
+
 import java.util.Iterator;
 
 public class GridCast {
@@ -24,6 +26,20 @@ public class GridCast {
             double dirZ
     ) {
         return createGridIterator(startX, startY, startZ, dirX, dirY, dirZ, 1.0, Double.MAX_VALUE);
+    }
+
+    /**
+     * Creates an iterator that iterates through blocks on a 3d 1x1 grid forever.
+     *
+     * @param start iterator start position
+     * @param dir iterator direction
+     * @return the iterator
+     */
+    public static Iterator<double[]> createGridIterator(
+            Vector3d start,
+            Vector3d dir
+    ) {
+        return createGridIterator(start.x(), start.y(), start.z(), dir.x(), dir.y(), dir.z(), 1.0, Double.MAX_VALUE);
     }
 
     /**
@@ -54,6 +70,25 @@ public class GridCast {
     }
 
     /**
+     * Creates an iterator that iterates through blocks on a 3d grid of the specified grid size, until the total length
+     * exceeds the length specified.
+     *
+     * @param start iterator start position
+     * @param dir iterator direction
+     * @param gridSize the size of the grid
+     * @param length the maximum length of the iterator
+     * @return the iterator
+     */
+    public static Iterator<double[]> createGridIterator(
+            Vector3d start,
+            Vector3d dir,
+            double gridSize,
+            double length
+    ) {
+        return new GridIterator(start.x(), start.y(), start.z(), dir.x(), dir.y(), dir.z(), gridSize, length);
+    }
+
+    /**
      * Creates an iterator that iterates through blocks on a 3d grid of the specified grid size, giving the exact
      * position that was hit when any grid unit was intersected. It does this until the total length exceeds the length
      * specified.
@@ -81,7 +116,7 @@ public class GridCast {
         return new ExactGridIterator(startX, startY, startZ, dirX, dirY, dirZ, gridSize, length);
     }
 
-    private static class GridIterator implements Iterator<double[]> {
+    private static class GridIterator implements Iterator<double[]>, Iterable<double[]> {
 
         protected double posX;
         protected double posY;
@@ -146,6 +181,11 @@ public class GridCast {
                     posY - posY % gridSize,
                     posZ - posZ % gridSize
             };
+        }
+
+        @Override
+        public Iterator<double[]> iterator() {
+            return this;
         }
     }
 

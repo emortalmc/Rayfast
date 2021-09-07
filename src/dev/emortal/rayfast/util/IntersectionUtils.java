@@ -167,6 +167,23 @@ public class IntersectionUtils {
         return new double[] {x, y, z};
     }
 
+    public static double[] getIntersection(
+            // Line
+            double posX, double posY, double posZ, // Position vector
+            double dirX, double dirY, double dirZ, // Direction vector
+            // Plane
+            double a, double b, double c, double d
+    ) {
+        // Find distance
+        final double t = -(-d - a * posX - b * posY - c * posZ) / (a * dirX + b * dirY + c * dirZ);
+
+        double x = posX + (dirX * t);
+        double y = posY + (dirY * t);
+        double z = posZ + (dirZ * t);
+
+        return new double[] {x, y, z};
+    }
+
     private static double getDot(
             double x, double y, double z,
             double vecX, double vecY, double vecZ

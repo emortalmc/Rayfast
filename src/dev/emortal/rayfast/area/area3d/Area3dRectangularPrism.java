@@ -1,11 +1,12 @@
 package dev.emortal.rayfast.area.area3d;
 
 import dev.emortal.rayfast.util.IntersectionUtils;
+import dev.emortal.rayfast.util.Vector3d;
 
 import java.util.function.Function;
 
 /**
- * A static rectangular prism class
+ * A rectangular pyramid
  */
 public interface Area3dRectangularPrism extends Area3d {
 
@@ -140,8 +141,8 @@ public interface Area3dRectangularPrism extends Area3d {
      * @param maxXGetter the getter for maxX
      * @param maxYGetter the getter for maxY
      * @param maxZGetter the getter for maxZ
-     * @param <T> the type of the wrapper
-     * @return the area that is represented by this wrapped
+     * @param <T> the type of the wrapped object
+     * @return the area that is represented by this wrapped object
      */
     static <T> Area3dRectangularPrism wrapper(
             T object,
@@ -181,6 +182,56 @@ public interface Area3dRectangularPrism extends Area3d {
             @Override
             public double getMaxZ() {
                 return maxZGetter.apply(object);
+            }
+        };
+    }
+
+    /**
+     * Generates a wrapper for the specified object using the specified getters.
+     * <br><br>
+     * This is a sub-optimal, however it is much better than the alternative wrapper. An ideal implementation implements the
+     * Area3dRectangularPrism interface directly on the object.
+     *
+     * @param object the object to wrap
+     * @param minGetter the getter for min
+     * @param maxGetter the getter for max
+     * @param <T> the type of the wrapped object
+     * @return the area that is represented by this wrapped object
+     */
+    static <T> Area3dRectangularPrism wrapper(
+            T object,
+            Function<T, Vector3d> minGetter,
+            Function<T, Vector3d> maxGetter
+    ) {
+        return new Area3dRectangularPrism() {
+            @Override
+            public double getMinX() {
+                return minGetter.apply(object).x();
+            }
+
+            @Override
+            public double getMinY() {
+                return minGetter.apply(object).y();
+            }
+
+            @Override
+            public double getMinZ() {
+                return minGetter.apply(object).z();
+            }
+
+            @Override
+            public double getMaxX() {
+                return maxGetter.apply(object).x();
+            }
+
+            @Override
+            public double getMaxY() {
+                return maxGetter.apply(object).y();
+            }
+
+            @Override
+            public double getMaxZ() {
+                return maxGetter.apply(object).z();
             }
         };
     }
