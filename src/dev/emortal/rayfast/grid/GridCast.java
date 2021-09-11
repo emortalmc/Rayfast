@@ -1,6 +1,6 @@
 package dev.emortal.rayfast.grid;
 
-import dev.emortal.rayfast.util.Vector3d;
+import dev.emortal.rayfast.vector.Vector3d;
 
 import java.util.Iterator;
 

@@ -1,16 +1,48 @@
 package dev.emortal.rayfast.area.area3d;
 
+import dev.emortal.rayfast.area.Area;
+import dev.emortal.rayfast.area.Intersection;
+import dev.emortal.rayfast.area.area2d.Area2d;
 import dev.emortal.rayfast.util.Converter;
-import dev.emortal.rayfast.util.Vector3d;
+import dev.emortal.rayfast.vector.Vector2d;
+import dev.emortal.rayfast.vector.Vector3d;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Specifies an object that represents some arbitrary 3d area.
  */
 
-public interface Area3d {
+public interface Area3d extends Area<Vector3d> {
     Converter<Area3d> CONVERTER = new Converter<>();
+
+    /**
+     * Returns true if the specified point is inside this area
+     * @param pointX the point X
+     * @param pointY the point Y
+     * @param pointY the point Z
+     * @return true if the point is inside this area, false otherwise
+     */
+    default boolean containsPoint(double pointX, double pointY, double pointZ) {
+        // Find all forwards intersections
+        Collection<double[]> result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
+
+        // If number is odd, then return true
+        return result.size() % 2 != 0;
+    }
+
+    /**
+     * Returns true if the specified point is inside this area
+     * @param point the point
+     * @return true if the point is inside this area, false otherwise
+     */
+    default boolean containsPoint(@NotNull Vector3d point) {
+        return containsPoint(point.x(), point.y(), point.z());
+    }
 
     /**
      * Returns the intersection between the specified line and this object.
@@ -23,7 +55,7 @@ public interface Area3d {
      * @param dirZ line Z direction
      * @return the computed line intersection position, null if none
      */
-    double[] lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ);
+    <R> @Nullable R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, @NotNull Intersection<R> intersection);
 
     /**
      * Returns the intersection between the specified line and this object
@@ -32,8 +64,8 @@ public interface Area3d {
      * @param dir line direction
      * @return the computed line intersection position, null if none
      */
-    default double[] lineIntersection(Vector3d pos, Vector3d dir) {
-        return lineIntersection(pos.x(), pos.y(), pos.z(), dir.x(), dir.y(), dir.z());
+    default <R> @Nullable R lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull Intersection<R> intersection) {
+        return lineIntersection(pos.x(), pos.y(), pos.z(), dir.x(), dir.y(), dir.z(), intersection);
     }
 
     /**
@@ -48,18 +80,7 @@ public interface Area3d {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
-        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ) != null;
-    };
-
-    /**
-     * Returns true if the specified line intersects this object.
-     * <br><br>
-     * @param pos line position
-     * @param dir line direction
-     * @return true if the line intersects this object, false otherwise
-     */
-    default boolean lineIntersects(Vector3d pos, Vector3d dir) {
-        return lineIntersects(pos.x(), pos.y(), pos.z(), dir.x(), dir.y(), dir.z());
+        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY) != null;
     }
 
     /**
@@ -71,7 +92,7 @@ public interface Area3d {
      * @param area3ds the area3ds to take the planes from
      * @return the new CombinedArea3d or DynamicCombinedArea3d
      */
-    static Area3dCombined combined(Area3d... area3ds) {
+    static Area3d combined(Area3d... area3ds) {
         return new Area3dCombined(area3ds);
     }
 
@@ -84,7 +105,7 @@ public interface Area3d {
      * @param area3ds the area3ds to take the planes from
      * @return the new CombinedArea3d or DynamicCombinedArea3d
      */
-    static Area3dCombined combined(Collection<Area3d> area3ds) {
+    static Area3d combined(@NotNull Collection<Area3d> area3ds) {
         return new Area3dCombined(area3ds);
     }
 
@@ -101,17 +122,50 @@ public interface Area3d {
         }
 
         @Override
-        public double[] lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
+        public boolean containsPoint(double pointX, double pointY, double pointZ) {
 
             for (Area3d area3d : all) {
-                double[] intersection = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ);
+                boolean result = area3d.containsPoint(pointX, pointY, pointZ);
 
-                if (intersection != null) {
-                    return intersection;
+                if (result) {
+                    return true;
                 }
             }
 
-            return null;
+            return false;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <R> R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, Intersection<R> intersection) {
+            Intersection.Collector<R> collector = intersection.collector();
+
+            switch (collector.type()) {
+                default:
+                case ANY:
+                    for (Area3d area3d : all) {
+                        R result = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection);
+
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                    return null;
+                case ALL:
+
+                    final List<double[]> list = new ArrayList<>();
+
+                    for (Area3d area3d : all) {
+
+                        R result = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection);
+
+                        if (result != null) {
+                            list.addAll((Collection<? extends double[]>) result);
+                        }
+                    }
+
+                    return (R) list;
+            }
         }
     }
 }

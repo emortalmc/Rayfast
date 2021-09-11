@@ -1,19 +1,22 @@
 package dev.emortal.rayfast.demo;
 
+import dev.emortal.rayfast.area.Intersection;
+import dev.emortal.rayfast.area.area2d.Area2d;
+import dev.emortal.rayfast.area.area2d.Area2dPolygon;
 import dev.emortal.rayfast.area.area3d.Area3d;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
 import dev.emortal.rayfast.grid.GridCast;
+import dev.emortal.rayfast.vector.Vector2d;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 public class RunBenchmarks {
 
     private static Area3d interfacedCombined;
     private static Area3d wrapperCombined;
+    private static Area2d polygonTests;
 
     public static void main(String[] args) {
-
         // Register entity to rayfast converter
         Area3d.CONVERTER.register(ExampleRaycastEntity.class, ExampleRaycastEntity::getBoundingBox);
 
@@ -66,17 +69,33 @@ public class RunBenchmarks {
 
         wrapperCombined = Area3d.combined(wrappers);
 
+        Area2d[] polygons = new Area2d[1000];
+
+        Vector2d pos1 = Vector2d.of(Math.random(), Math.random());
+        Vector2d pos2 = Vector2d.of(Math.random(), Math.random());
+        Vector2d pos3 = Vector2d.of(Math.random(), Math.random());
+
+        final Map<Vector2d, Vector2d> lines = Map.of(
+                pos1, pos2,
+                pos2, pos3,
+                pos3, pos1
+        );
+
+        Arrays.fill(polygons, (Area2dPolygon) () -> lines);
+
+        polygonTests = Area2d.combined(polygons);
 
         System.out.println("Finished after " + (System.currentTimeMillis() - startMillis) + "ms");
 
         benchmarkBlocks();
         benchmarkArea3d();
+        benchmarkArea2d();
     }
 
     private static void benchmarkBlocks() {
         long startMillis = System.currentTimeMillis();
 
-        Iterator<double[]> iterator = GridCast.createGridIterator(
+        Iterable<double[]> iterable = GridCast.createGridIterator(
                 Math.random(), Math.random(), Math.random(),
                 Math.random(), Math.random(), Math.random(),
                 1,
@@ -85,8 +104,7 @@ public class RunBenchmarks {
 
         int i = 0;
 
-        while (iterator.hasNext()) {
-            iterator.next();
+        for (double[] ignored : iterable) {
             i++;
         }
 
@@ -94,13 +112,17 @@ public class RunBenchmarks {
     }
 
     private static void benchmarkArea3d() {
+
+        final Intersection<double[]> intersection = Intersection.ANY;
+
         {
             long millis = System.currentTimeMillis();
 
             for (int i = 0; i < 100_000; i++)
                 interfacedCombined.lineIntersection(
                         Math.random(), Math.random(), Math.random(),
-                        Math.random(), Math.random(), Math.random()
+                        Math.random(), Math.random(), Math.random(),
+                        intersection
                 );
 
             System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100 mil interfaced rectangular prisms");
@@ -112,10 +134,29 @@ public class RunBenchmarks {
             for (int i = 0; i < 100_000; i++)
                 wrapperCombined.lineIntersection(
                         Math.random(), Math.random(), Math.random(),
-                        Math.random(), Math.random(), Math.random()
+                        Math.random(), Math.random(), Math.random(),
+                        intersection
                 );
 
             System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100 mil wrapped rectangular prisms");
+        }
+    }
+
+    private static void benchmarkArea2d() {
+
+        final Intersection<double[]> intersection = Intersection.ANY;
+
+        {
+            long millis = System.currentTimeMillis();
+
+            for (int i = 0; i < 1000; i++)
+                polygonTests.lineIntersection(
+                        Math.random(), Math.random(),
+                        Math.random(), Math.random(),
+                        intersection
+                );
+
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100_000 2d polygons");
         }
     }
 }

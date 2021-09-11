@@ -18,7 +18,7 @@ public abstract class ExampleRaycastEntity {
     abstract double getY();
     abstract double getZ();
 
-    class BoundingBox implements Area3dRectangularPrism {
+    static class BoundingBox implements Area3dRectangularPrism {
 
         private final ExampleRaycastEntity exampleRaycastEntity;
         private final double halfWidth;
