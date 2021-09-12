@@ -1,5 +1,7 @@
 package dev.emortal.rayfast.area;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 /**
@@ -64,12 +66,12 @@ final public class Intersection<R> {
 
         private Direction direction = Direction.ANY;
 
-        public Builder direction(Direction direction) {
+        public @NotNull Builder direction(@NotNull Direction direction) {
             this.direction = direction;
             return this;
         }
 
-        public <R> Intersection<R> build(Collector<R> collector) {
+        public <R> @NotNull Intersection<R> build(@NotNull Collector<R> collector) {
             return new Intersection<>(direction, collector);
         }
 

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Specifies an object that represents some arbitrary 3d area.
@@ -32,6 +33,7 @@ public interface Area3d extends Area<Vector3d> {
         Collection<double[]> result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
+        assert result != null;
         return result.size() % 2 != 0;
     }
 
@@ -103,7 +105,7 @@ public interface Area3d extends Area<Vector3d> {
      * This method will produce a CombinedArea3d or DynamicCombinedArea3d, depending on which
      *
      * @param area3ds the area3ds to take the planes from
-     * @return the new CombinedArea3d or DynamicCombinedArea3d
+     * @return the new Area3d
      */
     static Area3d combined(@NotNull Collection<Area3d> area3ds) {
         return new Area3dCombined(area3ds);

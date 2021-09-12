@@ -2,7 +2,7 @@ package dev.emortal.rayfast.area.area3d;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Intersection3dUtils;
-import dev.emortal.rayfast.util.WrapperUtils;
+import dev.emortal.rayfast.util.Wrappers;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A rectangular pyramid
@@ -218,12 +217,12 @@ public interface Area3dRectangularPrism extends Area3d {
      */
     static <T> Area3d wrapper(
             T object,
-            WrapperUtils.DoubleWrapper<T> minXGetter,
-            WrapperUtils.DoubleWrapper<T> minYGetter,
-            WrapperUtils.DoubleWrapper<T> minZGetter,
-            WrapperUtils.DoubleWrapper<T> maxXGetter,
-            WrapperUtils.DoubleWrapper<T> maxYGetter,
-            WrapperUtils.DoubleWrapper<T> maxZGetter
+            Wrappers.DoubleWrapper<T> minXGetter,
+            Wrappers.DoubleWrapper<T> minYGetter,
+            Wrappers.DoubleWrapper<T> minZGetter,
+            Wrappers.DoubleWrapper<T> maxXGetter,
+            Wrappers.DoubleWrapper<T> maxYGetter,
+            Wrappers.DoubleWrapper<T> maxZGetter
     ) {
         return new Area3dRectangularPrism() {
             @Override
@@ -272,8 +271,8 @@ public interface Area3dRectangularPrism extends Area3d {
      */
     static <T> Area3dRectangularPrism wrapper(
             T object,
-            WrapperUtils.Vector3dWrapper<T> minGetter,
-            WrapperUtils.Vector3dWrapper<T> maxGetter
+            Wrappers.Vector3dWrapper<T> minGetter,
+            Wrappers.Vector3dWrapper<T> maxGetter
     ) {
         return new Area3dRectangularPrism() {
             @Override

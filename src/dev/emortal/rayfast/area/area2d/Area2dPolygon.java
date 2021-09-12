@@ -2,16 +2,15 @@ package dev.emortal.rayfast.area.area2d;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Intersection2dUtils;
-import dev.emortal.rayfast.util.WrapperUtils;
+import dev.emortal.rayfast.util.Wrappers;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Represents a 2d polygon
@@ -23,7 +22,7 @@ public interface Area2dPolygon extends Area2d {
     @Override
     @ApiStatus.Internal
     @SuppressWarnings("unchecked")
-    default <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, Intersection<R> intersection) {
+    default <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
         Intersection.Direction direction = intersection.direction();
 
         final double posXb = dirX + posX;
@@ -90,7 +89,7 @@ public interface Area2dPolygon extends Area2d {
      */
     static <T> Area2d wrapper(
             T object,
-            WrapperUtils.LinesWrapper<T> linesGetter
+            Wrappers.LinesWrapper<T> linesGetter
     ) {
         return (Area2dPolygon) () -> linesGetter.get(object);
     }
