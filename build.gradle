@@ -9,14 +9,6 @@ repositories {
     mavenCentral()
 }
 
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java']
-        }
-    }
-}
-
 dependencies {
     compile 'org.jetbrains:annotations:22.0.0'
 }

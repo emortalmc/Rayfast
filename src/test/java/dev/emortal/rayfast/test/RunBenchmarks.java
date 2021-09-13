@@ -28,9 +28,6 @@ public class RunBenchmarks {
     private static Collection<Area3dLike> combinedCastAreas;
 
     public static void main(String[] args) {
-        // Register entity to rayfast converter
-        Area3d.CONVERTER.register(dev.emortal.rayfast.test.ExampleRaycastEntity.class, ExampleRaycastEntity::getBoundingBox);
-
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
 
@@ -61,7 +58,7 @@ public class RunBenchmarks {
             }
         };
 
-        Arrays.fill(interfaced, Area3d.CONVERTER.from(exampleRaycastEntity));
+        Arrays.fill(interfaced, exampleRaycastEntity.asArea3d());
 
         interfacedCombined = Area3d.combined(interfaced);
 
@@ -238,7 +235,6 @@ public class RunBenchmarks {
 
                 combinedCast.apply(combinedCastAreas, vecA, vecB);
             }
-
 
             System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to do " + amount + " combined casts with 100 entities and 100 block range");
         }

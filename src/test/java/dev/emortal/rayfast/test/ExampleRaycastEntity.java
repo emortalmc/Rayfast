@@ -1,6 +1,9 @@
 package dev.emortal.rayfast.test;
 
+import dev.emortal.rayfast.area.area3d.Area3d;
+import dev.emortal.rayfast.area.area3d.Area3dLike;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An example usage of an entity with a bounding box.
@@ -10,9 +13,14 @@ import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
  *
  * This is an ideal situation for rayfast.
  */
-public abstract class ExampleRaycastEntity {
+public abstract class ExampleRaycastEntity implements Area3dLike {
 
     abstract BoundingBox getBoundingBox();
+
+    @Override
+    public @NotNull Area3d asArea3d() {
+        return getBoundingBox();
+    }
 
     abstract double getX();
     abstract double getY();
