@@ -1,4 +1,4 @@
-package dev.emortal.rayfast.grid;
+package dev.emortal.rayfast.casting.grid;
 
 import dev.emortal.rayfast.vector.Vector3d;
 
@@ -86,6 +86,26 @@ public class GridCast {
             double length
     ) {
         return new GridIterator(start.x(), start.y(), start.z(), dir.x(), dir.y(), dir.z(), gridSize, length);
+    }
+
+    /**
+     * Creates an iterator that iterates through blocks on a 3d grid of the specified grid size, giving the exact
+     * position that was hit when any grid unit was intersected. It does this until the total length exceeds the length
+     * specified.
+     *
+     * @param start iterator start position
+     * @param dir iterator direction
+     * @param gridSize the size of the grid
+     * @param length the maximum length of the iterator
+     * @return the iterator
+     */
+    public static GridIterator createExactGridIterator(
+            Vector3d start,
+            Vector3d dir,
+            double gridSize,
+            double length
+    ) {
+        return new ExactGridIterator(start.x(), start.y(), start.z(), dir.x(), dir.y(), dir.z(), gridSize, length);
     }
 
     /**

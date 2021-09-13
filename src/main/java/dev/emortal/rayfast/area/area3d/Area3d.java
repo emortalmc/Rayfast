@@ -18,7 +18,7 @@ import java.util.function.Function;
  * Specifies an object that represents some arbitrary 3d area.
  */
 
-public interface Area3d extends Area<Vector3d> {
+public interface Area3d extends Area<Vector3d>, Area3dLike {
     Converter<Area3d> CONVERTER = new Converter<>();
 
     /**
@@ -169,5 +169,10 @@ public interface Area3d extends Area<Vector3d> {
                     return (R) list;
             }
         }
+    }
+
+    @Override
+    default @NotNull Area3d asArea3d() {
+        return this;
     }
 }

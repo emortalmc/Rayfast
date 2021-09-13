@@ -1,24 +1,32 @@
-package dev.emortal.rayfast.demo;
+package dev.emortal.rayfast.test;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.area.area2d.Area2d;
 import dev.emortal.rayfast.area.area2d.Area2dPolygon;
 import dev.emortal.rayfast.area.area3d.Area3d;
+import dev.emortal.rayfast.area.area3d.Area3dLike;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
-import dev.emortal.rayfast.grid.GridCast;
+import dev.emortal.rayfast.casting.combined.CombinedCast;
+import dev.emortal.rayfast.casting.grid.GridCast;
 import dev.emortal.rayfast.vector.Vector2d;
+import dev.emortal.rayfast.vector.Vector3d;
 
 import java.util.*;
 
+/**
+ * Performance tests.
+ */
 public class RunBenchmarks {
 
     private static Area3d interfacedCombined;
     private static Area3d wrapperCombined;
     private static Area2d polygonTests;
 
+    private static Collection<Area3dLike> combinedCastAreas;
+
     public static void main(String[] args) {
         // Register entity to rayfast converter
-        Area3d.CONVERTER.register(ExampleRaycastEntity.class, ExampleRaycastEntity::getBoundingBox);
+        Area3d.CONVERTER.register(dev.emortal.rayfast.test.ExampleRaycastEntity.class, ExampleRaycastEntity::getBoundingBox);
 
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
@@ -87,9 +95,50 @@ public class RunBenchmarks {
 
         System.out.println("Finished after " + (System.currentTimeMillis() - startMillis) + "ms");
 
-        benchmarkBlocks();
-        benchmarkArea3d();
+        combinedCastAreas = new HashSet<>();
+
+        for (int i = 0; i < 3; i++) {
+            double minX = Math.random(); double maxX = Math.random();
+            double minY = Math.random(); double maxY = Math.random();
+            double minZ = Math.random(); double maxZ = Math.random();
+
+            combinedCastAreas.add(new Area3dRectangularPrism() {
+                @Override
+                public double getMinX() {
+                    return minX;
+                }
+
+                @Override
+                public double getMinY() {
+                    return minY;
+                }
+
+                @Override
+                public double getMinZ() {
+                    return minZ;
+                }
+
+                @Override
+                public double getMaxX() {
+                    return maxX;
+                }
+
+                @Override
+                public double getMaxY() {
+                    return maxY;
+                }
+
+                @Override
+                public double getMaxZ() {
+                    return maxZ;
+                }
+            });
+        }
+
         benchmarkArea2d();
+        benchmarkArea2d();
+        benchmarkBlocks();
+        benchmarkCombinedCast();
     }
 
     private static void benchmarkBlocks() {
@@ -157,6 +206,38 @@ public class RunBenchmarks {
                 );
 
             System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to intersect 100_000 2d polygons");
+        }
+    }
+
+    private static void benchmarkCombinedCast() {
+        final CombinedCast combinedCast = CombinedCast.builder()
+                .gridSize(1.0)
+                .max(10.0)
+                .ordered(true)
+                .build();
+
+        {
+            Vector3d vecA = Vector3d.of(Math.random(), Math.random(), Math.random());
+            Vector3d vecB = Vector3d.of(Math.random(), Math.random(), Math.random());
+
+            combinedCast.apply(combinedCastAreas, vecA, vecB);
+        }
+
+        {
+            long millis = System.currentTimeMillis();
+
+            int amount = 1000;
+
+            for (int i = 0; i < amount; i++) {
+
+                Vector3d vecA = Vector3d.of(Math.random(), Math.random(), Math.random());
+                Vector3d vecB = Vector3d.of(Math.random(), Math.random(), Math.random());
+
+                System.out.println(combinedCast.apply(combinedCastAreas, vecA, vecB));
+            }
+
+
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to do " + amount + " combined casts");
         }
     }
 }

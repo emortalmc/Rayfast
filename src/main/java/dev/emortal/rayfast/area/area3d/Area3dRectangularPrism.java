@@ -2,7 +2,7 @@ package dev.emortal.rayfast.area.area3d;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Intersection3dUtils;
-import dev.emortal.rayfast.util.Wrappers;
+import dev.emortal.rayfast.util.FunctionalInterfaces;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -217,12 +217,12 @@ public interface Area3dRectangularPrism extends Area3d {
      */
     static <T> Area3d wrapper(
             T object,
-            Wrappers.DoubleWrapper<T> minXGetter,
-            Wrappers.DoubleWrapper<T> minYGetter,
-            Wrappers.DoubleWrapper<T> minZGetter,
-            Wrappers.DoubleWrapper<T> maxXGetter,
-            Wrappers.DoubleWrapper<T> maxYGetter,
-            Wrappers.DoubleWrapper<T> maxZGetter
+            FunctionalInterfaces.DoubleWrapper<T> minXGetter,
+            FunctionalInterfaces.DoubleWrapper<T> minYGetter,
+            FunctionalInterfaces.DoubleWrapper<T> minZGetter,
+            FunctionalInterfaces.DoubleWrapper<T> maxXGetter,
+            FunctionalInterfaces.DoubleWrapper<T> maxYGetter,
+            FunctionalInterfaces.DoubleWrapper<T> maxZGetter
     ) {
         return new Area3dRectangularPrism() {
             @Override
@@ -271,8 +271,8 @@ public interface Area3dRectangularPrism extends Area3d {
      */
     static <T> Area3dRectangularPrism wrapper(
             T object,
-            Wrappers.Vector3dWrapper<T> minGetter,
-            Wrappers.Vector3dWrapper<T> maxGetter
+            FunctionalInterfaces.Vector3dWrapper<T> minGetter,
+            FunctionalInterfaces.Vector3dWrapper<T> maxGetter
     ) {
         return new Area3dRectangularPrism() {
             @Override

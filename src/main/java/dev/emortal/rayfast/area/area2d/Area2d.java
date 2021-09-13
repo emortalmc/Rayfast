@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public interface Area2d extends Area<Vector2d> {
+public interface Area2d extends Area<Vector2d>, Area2dLike {
     Converter<Area2d> CONVERTER = new Converter<>();
 
     /**
@@ -135,5 +135,10 @@ public interface Area2d extends Area<Vector2d> {
                     return (R) list;
             }
         }
+    }
+
+    @Override
+    default @NotNull Area2d asArea2d() {
+        return this;
     }
 }

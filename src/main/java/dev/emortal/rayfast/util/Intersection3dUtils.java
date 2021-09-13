@@ -35,6 +35,10 @@ public class Intersection3dUtils {
                 maxX, maxY, maxZ
         );
 
+        if (arr == null) {
+            return null;
+        }
+
         double x = arr[0];
         double y = arr[1];
         double z = arr[2];

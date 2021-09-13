@@ -1,4 +1,4 @@
-package dev.emortal.rayfast.demo;
+package dev.emortal.rayfast.test;
 
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
 

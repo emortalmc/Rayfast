@@ -2,7 +2,7 @@ package dev.emortal.rayfast.area.area2d;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Intersection2dUtils;
-import dev.emortal.rayfast.util.Wrappers;
+import dev.emortal.rayfast.util.FunctionalInterfaces;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -89,7 +89,7 @@ public interface Area2dPolygon extends Area2d {
      */
     static <T> Area2d wrapper(
             T object,
-            Wrappers.LinesWrapper<T> linesGetter
+            FunctionalInterfaces.LinesWrapper<T> linesGetter
     ) {
         return (Area2dPolygon) () -> linesGetter.get(object);
     }
