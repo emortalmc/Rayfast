@@ -13,7 +13,7 @@ public interface Area<V extends Vector> {
     ////////////////////
 
     // This intersection option is used to find whether the area contains this point
-    Intersection<Collection<double[]>> ALL_FORWARDS = Intersection.builder()
+    Intersection<Collection<? extends Vector>> ALL_FORWARDS = Intersection.builder()
             .direction(Intersection.Direction.FORWARDS)
             .build(Intersection.Collector.ALL);
 
@@ -46,9 +46,10 @@ public interface Area<V extends Vector> {
      * @param dir line direction
      * @return any line intersection position, null if none
      */
-    default double @Nullable [] lineIntersection(@NotNull V pos, @NotNull V dir) {
-        return lineIntersection(pos, dir, Intersection.ANY);
-    };
+    @SuppressWarnings("unchecked")
+    default V lineIntersection(@NotNull V pos, @NotNull V dir) {
+        return (V) lineIntersection(pos, dir, Intersection.ANY);
+    }
 
     /**
      * Returns true if the specified line intersects this area.
@@ -59,5 +60,5 @@ public interface Area<V extends Vector> {
      */
     default boolean lineIntersects(@NotNull V pos, @NotNull V dir) {
         return lineIntersection(pos, dir) != null;
-    };
+    }
 }

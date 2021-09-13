@@ -3,14 +3,10 @@ package dev.emortal.rayfast.casting.combined;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.area.area3d.Area3d;
 import dev.emortal.rayfast.area.area3d.Area3dLike;
-import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dToBoolean;
-import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dArea3dToBoolean;
-import static dev.emortal.rayfast.casting.combined.CombinedCastResult.HitResult;
-import static dev.emortal.rayfast.casting.combined.CombinedCastResult.HitType;
-
 import dev.emortal.rayfast.casting.grid.GridCast;
 import dev.emortal.rayfast.util.FunctionalInterfaces;
 import dev.emortal.rayfast.util.VectorMathUtil;
+import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -18,9 +14,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static dev.emortal.rayfast.casting.combined.CombinedCastResult.HitResult;
+import static dev.emortal.rayfast.casting.combined.CombinedCastResult.HitType;
+import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dArea3dToBoolean;
+import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dToBoolean;
+
 public class CombinedCast {
 
-    private static final Intersection<double[]> INTERSECTION_FORWARDS_ANY = Intersection.builder()
+    private static final @NotNull Intersection<? extends Vector> INTERSECTION_FORWARDS_ANY = Intersection.builder()
             .direction(Intersection.Direction.FORWARDS)
             .build(Intersection.Collector.ANY);
 
@@ -65,13 +66,13 @@ public class CombinedCast {
 
         List<HitResult> hitResults = new ArrayList<>();
 
-        // Do gridcast first
-        maxRange = handleGridCast(pos, dir, hitResults, maxRange);
-
-
+        // Do Area3ds first
         Map<Area3d, Vector3d> area3dVector3dMap = new HashMap<>();
 
-        handleArea3ds(area3ds, pos, dir, area3dVector3dMap, hitResults, maxRange);
+        maxRange = handleArea3ds(area3ds, pos, dir, area3dVector3dMap, hitResults, maxRange);
+
+        // Now do grid cast
+        handleGridCast(pos, dir, hitResults, maxRange);
 
         // Sort hit results if ordered
         if (ordered) {
@@ -81,8 +82,7 @@ public class CombinedCast {
         return hitResults;
     }
 
-    @SuppressWarnings("unchecked")
-    private void handleArea3ds(
+    private double handleArea3ds(
             @NotNull Collection<Area3dLike> area3ds,
             @NotNull Vector3d pos,
             @NotNull Vector3d dir,
@@ -98,13 +98,11 @@ public class CombinedCast {
             // Do the deed
             Area3d area3d = area3dLike.asArea3d();
 
-            double[] arr = area3d.lineIntersection(pos, dir, INTERSECTION_FORWARDS_ANY);
+            Vector3d intersection = (Vector3d) area3d.lineIntersection(pos, dir, INTERSECTION_FORWARDS_ANY);
 
-            if (arr == null) {
+            if (intersection == null) {
                 continue;
             }
-
-            Vector3d intersection = Vector3d.from(arr);
 
             // cache intersection position
             area3dVector3dMap.put(area3d, intersection);
@@ -133,6 +131,7 @@ public class CombinedCast {
             hitResults.add(result);
         });
 
+        return intermediateMaxRange;
     }
 
     private double handleGridCast(
@@ -144,17 +143,14 @@ public class CombinedCast {
         double intermediateMaxRange = maxRange;
 
         // Create gridcast iterator
-        Iterator<double[]> iterator = GridCast.createExactGridIterator(pos, dir, gridSize, max);
+        Iterator<Vector3d> iterator = GridCast.createExactGridIterator(pos, dir, gridSize, max);
         boolean running = true;
 
         // Run the iterator
         while (running && iterator.hasNext()) {
-            final double[] gridUnitPos = iterator.next();
-
-            final Vector3d vector3d = Vector3d.from(gridUnitPos);
+            final Vector3d vector3d = iterator.next();
 
             double distanceSquared = VectorMathUtil.distanceSquared(pos, vector3d);
-
 
             // Generate and add hit result
             HitResult result = new HitResult(null, HitType.GRIDUNIT, vector3d, distanceSquared);

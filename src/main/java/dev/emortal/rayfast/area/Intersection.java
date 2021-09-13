@@ -1,5 +1,6 @@
 package dev.emortal.rayfast.area;
 
+import dev.emortal.rayfast.vector.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -10,13 +11,13 @@ import java.util.Collection;
  */
 final public class Intersection<R> {
 
+    public static final Intersection<? extends Vector> ANY = Intersection.builder()
+            .direction(Direction.ANY)
+            .build(Collector.ANY);
+
     public static Intersection.Builder builder() {
         return new Builder();
     }
-
-    public static final Intersection<double[]> ANY = builder()
-            .direction(Direction.ANY)
-            .build(Collector.ANY);
 
     private final Direction direction;
     private final Collector<R> collector;
@@ -24,6 +25,11 @@ final public class Intersection<R> {
     private Intersection(Direction direction, Collector<R> collector) {
         this.direction = direction;
         this.collector = collector;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> @NotNull Intersection<T> cast() {
+        return (Intersection<T>) this;
     }
 
     public Direction direction() {
@@ -50,8 +56,8 @@ final public class Intersection<R> {
             return type;
         }
 
-        public static final Collector<double[]> ANY = new Collector<>(Type.ANY);
-        public static final Collector<Collection<double[]>> ALL = new Collector<>(Type.ALL);
+        public static final Collector<? extends Vector> ANY = new Collector<>(Type.ANY);
+        public static final Collector<Collection<? extends Vector>> ALL = new Collector<>(Type.ALL);
 
         // Enum used to switch on
         public enum Type {
@@ -74,6 +80,5 @@ final public class Intersection<R> {
         public <R> @NotNull Intersection<R> build(@NotNull Collector<R> collector) {
             return new Intersection<>(direction, collector);
         }
-
     }
 }

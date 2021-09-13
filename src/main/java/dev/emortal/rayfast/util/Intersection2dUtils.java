@@ -2,6 +2,7 @@ package dev.emortal.rayfast.util;
 
 
 import dev.emortal.rayfast.area.Intersection;
+import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -17,7 +18,7 @@ public class Intersection2dUtils {
     A line intersection bounded by the intersecting line points
      */
     @ApiStatus.Internal
-    public static double[] lineIntersection(
+    public static Vector2d lineIntersection(
             Intersection.Direction direction,
 
             // Source Line
@@ -48,14 +49,14 @@ public class Intersection2dUtils {
         switch (direction) {
             default:
             case ANY: {
-                return new double[] {x, y};
+                return Vector2d.of(x, y);
             }
             case FORWARDS: {
                 // Find dot
                 double dotProduct = (c - a) * (x - a) + (d - b) * (y - b);
 
                 if (dotProduct >= 0) {
-                    return new double[] {x, y};
+                    return Vector2d.of(x, y);
                 }
 
                 return null;
@@ -65,7 +66,7 @@ public class Intersection2dUtils {
                 double dotProduct = (c - a) * (x - a) + (d - b) * (y - b);
 
                 if (dotProduct <= 0) {
-                    return new double[] {x, y};
+                    return Vector2d.of(x, y);
                 }
 
                 return null;

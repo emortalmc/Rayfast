@@ -1,8 +1,8 @@
 package dev.emortal.rayfast.area.area2d;
 
 import dev.emortal.rayfast.area.Intersection;
-import dev.emortal.rayfast.util.Intersection2dUtils;
 import dev.emortal.rayfast.util.FunctionalInterfaces;
+import dev.emortal.rayfast.util.Intersection2dUtils;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +35,7 @@ public interface Area2dPolygon extends Area2d {
                     Vector2d pos1 = line.getKey();
                     Vector2d pos2 = line.getValue();
 
-                    double[] pos = Intersection2dUtils.lineIntersection(
+                    Vector2d pos = Intersection2dUtils.lineIntersection(
                             direction,
 
                             posX, posY,
@@ -52,13 +52,13 @@ public interface Area2dPolygon extends Area2d {
 
                 return null;
             case ALL:
-                List<double[]> result = new ArrayList<>();
+                List<Vector2d> result = new ArrayList<>();
 
                 for (Map.Entry<Vector2d, Vector2d> line : getLines().entrySet()) {
                     Vector2d pos1 = line.getKey();
                     Vector2d pos2 = line.getValue();
 
-                    double[] pos = Intersection2dUtils.lineIntersection(
+                    Vector2d pos = Intersection2dUtils.lineIntersection(
                             direction,
 
                             posX, posY,

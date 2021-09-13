@@ -1,8 +1,8 @@
 package dev.emortal.rayfast.area.area3d;
 
 import dev.emortal.rayfast.area.Intersection;
-import dev.emortal.rayfast.util.Intersection3dUtils;
 import dev.emortal.rayfast.util.FunctionalInterfaces;
+import dev.emortal.rayfast.util.Intersection3dUtils;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ public interface Area3dRectangularPrism extends Area3d {
         double maxZ = getMaxZ();
 
         // Don't initialize this collection until we know that we need to collect the values.
-        List<double[]> result = null;
+        List<Vector3d> result = null;
 
         Intersection.Collector.Type collectorType = intersection.collector().type();
         Intersection.Direction direction = intersection.direction();
@@ -47,7 +47,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Front
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line
@@ -71,7 +71,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Back
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line
@@ -95,7 +95,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Left
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line
@@ -119,7 +119,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Right
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line
@@ -143,7 +143,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Top
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line
@@ -167,7 +167,7 @@ public interface Area3dRectangularPrism extends Area3d {
         }
 
         { // Bottom
-            double[] pos = Intersection3dUtils.planeIntersection(
+            Vector3d pos = Intersection3dUtils.planeIntersection(
                     // Line direction
                     direction,
                     // Line

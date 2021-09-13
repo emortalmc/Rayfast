@@ -2,6 +2,7 @@ package dev.emortal.rayfast.util;
 
 
 import dev.emortal.rayfast.area.Intersection;
+import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class Intersection3dUtils {
 
     @ApiStatus.Internal
-    public static double[] planeIntersection(
+    public static Vector3d planeIntersection(
             Intersection.Direction direction,
             // Line
             double posX, double posY, double posZ, // Position vector
@@ -24,7 +25,7 @@ public class Intersection3dUtils {
             double adjX, double adjY, double adjZ,
             double maxX, double maxY, double maxZ
     ) {
-        double[] arr = getIntersection(
+        Vector3d vector = getIntersection(
                 direction,
 
                 posX, posY, posZ,
@@ -35,13 +36,13 @@ public class Intersection3dUtils {
                 maxX, maxY, maxZ
         );
 
-        if (arr == null) {
+        if (vector == null) {
             return null;
         }
 
-        double x = arr[0];
-        double y = arr[1];
-        double z = arr[2];
+        double x = vector.x();
+        double y = vector.y();
+        double z = vector.z();
 
         int fits = 0;
 
@@ -61,7 +62,7 @@ public class Intersection3dUtils {
             return null;
         }
 
-        return new double[] {x, y, z};
+        return vector;
     }
 
     @ApiStatus.Internal
@@ -73,7 +74,7 @@ public class Intersection3dUtils {
     }
 
     @ApiStatus.Internal
-    public static double[] getIntersection(
+    public static Vector3d getIntersection(
             // Line direction
             Intersection.Direction direction,
 
@@ -97,14 +98,14 @@ public class Intersection3dUtils {
         switch (direction) {
             default:
             case ANY: {
-                return new double[] {x, y, z};
+                return Vector3d.of(x, y, z);
             }
             case FORWARDS: {
                 // Check if position is forwards
                 double dotProduct = dirX * (x - posX) + dirY * (y - posY) + dirZ * (z - posZ);
 
                 if (dotProduct > 0) {
-                    return new double[]{x, y, z};
+                    return Vector3d.of(x, y, z);
                 }
                 return null;
             }
@@ -113,7 +114,7 @@ public class Intersection3dUtils {
                 double dotProduct = dirX * (x - posX) + dirY * (y - posY) + dirZ * (z - posZ);
 
                 if (dotProduct < 0) {
-                    return new double[] {x, y, z};
+                    return Vector3d.of(x, y, z);
                 }
 
                 return null;
@@ -122,7 +123,7 @@ public class Intersection3dUtils {
     }
 
     @ApiStatus.Internal
-    public static double[] getIntersection(
+    public static Vector3d getIntersection(
             // Line Direction
             Intersection.Direction direction,
             // Line
@@ -198,7 +199,6 @@ public class Intersection3dUtils {
         double x = posX + (dirX * t);
         double y = posY + (dirY * t);
         double z = posZ + (dirZ * t);
-        return new double[] {x, y, z};
         */
     }
 }

@@ -11,7 +11,10 @@ import dev.emortal.rayfast.casting.grid.GridCast;
 import dev.emortal.rayfast.vector.Vector2d;
 import dev.emortal.rayfast.vector.Vector3d;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Performance tests.
@@ -97,7 +100,7 @@ public class RunBenchmarks {
 
         combinedCastAreas = new HashSet<>();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 100; i++) {
             double minX = Math.random(); double maxX = Math.random();
             double minY = Math.random(); double maxY = Math.random();
             double minZ = Math.random(); double maxZ = Math.random();
@@ -144,7 +147,7 @@ public class RunBenchmarks {
     private static void benchmarkBlocks() {
         long startMillis = System.currentTimeMillis();
 
-        Iterable<double[]> iterable = GridCast.createGridIterator(
+        Iterable<Vector3d> iterable = GridCast.createGridIterator(
                 Math.random(), Math.random(), Math.random(),
                 Math.random(), Math.random(), Math.random(),
                 1,
@@ -153,7 +156,7 @@ public class RunBenchmarks {
 
         int i = 0;
 
-        for (double[] ignored : iterable) {
+        for (Vector3d ignored : iterable) {
             i++;
         }
 
@@ -162,7 +165,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea3d() {
 
-        final Intersection<double[]> intersection = Intersection.ANY;
+        final Intersection<Vector3d> intersection = Intersection.ANY.cast();
 
         {
             long millis = System.currentTimeMillis();
@@ -193,7 +196,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea2d() {
 
-        final Intersection<double[]> intersection = Intersection.ANY;
+        final Intersection<Vector2d> intersection = Intersection.ANY.cast();
 
         {
             long millis = System.currentTimeMillis();
@@ -212,7 +215,7 @@ public class RunBenchmarks {
     private static void benchmarkCombinedCast() {
         final CombinedCast combinedCast = CombinedCast.builder()
                 .gridSize(1.0)
-                .max(10.0)
+                .max(100.0)
                 .ordered(true)
                 .build();
 
@@ -233,11 +236,11 @@ public class RunBenchmarks {
                 Vector3d vecA = Vector3d.of(Math.random(), Math.random(), Math.random());
                 Vector3d vecB = Vector3d.of(Math.random(), Math.random(), Math.random());
 
-                System.out.println(combinedCast.apply(combinedCastAreas, vecA, vecB));
+                combinedCast.apply(combinedCastAreas, vecA, vecB);
             }
 
 
-            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to do " + amount + " combined casts");
+            System.out.println("took " + (System.currentTimeMillis() - millis) + "ms to do " + amount + " combined casts with 100 entities and 100 block range");
         }
     }
 }

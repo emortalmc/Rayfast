@@ -1,6 +1,7 @@
 package dev.emortal.rayfast.casting.grid;
 
 import dev.emortal.rayfast.vector.Vector3d;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
@@ -136,7 +137,7 @@ public class GridCast {
         return new ExactGridIterator(startX, startY, startZ, dirX, dirY, dirZ, gridSize, length);
     }
 
-    private static class GridIterator implements Iterator<double[]>, Iterable<double[]> {
+    private static class GridIterator implements Iterator<Vector3d>, Iterable<Vector3d> {
 
         protected double posX;
         protected double posY;
@@ -174,7 +175,7 @@ public class GridCast {
         }
 
         @Override
-        public double[] next() {
+        public Vector3d next() {
             // Find the length to the next block
             double lengthX = (gridSize - (Math.abs(posX) % gridSize)) / Math.abs(dirX);
             double lengthY = (gridSize - (Math.abs(posY) % gridSize)) / Math.abs(dirY);
@@ -191,15 +192,15 @@ public class GridCast {
             // Add length to current
             currentLength += lowest;
 
-            return new double[] {
+            return Vector3d.of(
                     posX - posX % gridSize,
                     posY - posY % gridSize,
                     posZ - posZ % gridSize
-            };
+            );
         }
 
         @Override
-        public Iterator<double[]> iterator() {
+        public @NotNull Iterator<Vector3d> iterator() {
             return this;
         }
     }
@@ -210,7 +211,7 @@ public class GridCast {
         }
 
         @Override
-        public double[] next() {
+        public Vector3d next() {
             // Find the length to the next block
             double lengthX = (gridSize - (Math.abs(posX) % gridSize)) / Math.abs(dirX);
             double lengthY = (gridSize - (Math.abs(posY) % gridSize)) / Math.abs(dirY);
@@ -227,11 +228,11 @@ public class GridCast {
             // Add length to current
             currentLength += lowest;
 
-            return new double[] {
+            return Vector3d.of(
                     posX,
                     posY,
-                    posZ,
-            };
+                    posZ
+            );
         }
     }
 

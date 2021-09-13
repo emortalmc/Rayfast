@@ -28,7 +28,7 @@ public class Converter<C> {
 
 
     /**
-     * Converts an object to a Area3d.
+     * Converts an object to another.
      * <br><br>
      * The object needs to have a registered converting function. These
      * functions can be registered using #register
@@ -54,6 +54,7 @@ public class Converter<C> {
             clazz = clazz.getSuperclass();
         }
 
+        assert originalClazz != null;
         throw new IllegalArgumentException(originalClazz.getName() + "object provided to Converter#from did not have a registered converter");
     }
 }

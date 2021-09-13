@@ -3,12 +3,12 @@ package dev.emortal.rayfast.area.area2d;
 import dev.emortal.rayfast.area.Area;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Converter;
+import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,9 +23,10 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      */
     default boolean containsPoint(double x, double y) {
         // Find all intersections
-        Collection<double[]> result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
+        Collection<? extends Vector> result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
+        assert result != null;
         return result.size() % 2 != 0;
     }
 
@@ -121,14 +122,14 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
                     return null;
                 case ALL:
 
-                    final List<double[]> list = new ArrayList<>();
+                    final List<Vector2d> list = new ArrayList<>();
 
                     for (Area2d area2d : all) {
 
                         R result = area2d.lineIntersection(posX, posY, dirX, dirY, intersection);
 
                         if (result != null) {
-                            list.addAll((Collection<? extends double[]>) result);
+                            list.addAll((Collection<? extends Vector2d>) result);
                         }
                     }
 

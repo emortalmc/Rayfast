@@ -2,9 +2,8 @@ package dev.emortal.rayfast.area.area3d;
 
 import dev.emortal.rayfast.area.Area;
 import dev.emortal.rayfast.area.Intersection;
-import dev.emortal.rayfast.area.area2d.Area2d;
 import dev.emortal.rayfast.util.Converter;
-import dev.emortal.rayfast.vector.Vector2d;
+import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Specifies an object that represents some arbitrary 3d area.
@@ -25,12 +23,12 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * Returns true if the specified point is inside this area
      * @param pointX the point X
      * @param pointY the point Y
-     * @param pointY the point Z
+     * @param pointZ the point Z
      * @return true if the point is inside this area, false otherwise
      */
     default boolean containsPoint(double pointX, double pointY, double pointZ) {
         // Find all forwards intersections
-        Collection<double[]> result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
+        Collection<? extends Vector> result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
         assert result != null;
@@ -155,14 +153,14 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
                     return null;
                 case ALL:
 
-                    final List<double[]> list = new ArrayList<>();
+                    final List<Vector3d> list = new ArrayList<>();
 
                     for (Area3d area3d : all) {
 
                         R result = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection);
 
                         if (result != null) {
-                            list.addAll((Collection<? extends double[]>) result);
+                            list.addAll((Collection<Vector3d>) result);
                         }
                     }
 

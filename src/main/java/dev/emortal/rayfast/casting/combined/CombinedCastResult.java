@@ -30,23 +30,23 @@ public interface CombinedCastResult {
             if (subject == null)
                 throw new IllegalStateException("Subject was null");
             return (R) subject;
-        };
+        }
 
         public @NotNull HitType type() {
             return type;
-        };
+        }
 
         public @NotNull Vector3d position() {
             return position;
-        };
+        }
 
         public double distanceSquared() {
             return distanceSquared;
-        };
+        }
     }
 
     enum HitType {
         GRIDUNIT,
-        AREA3D;
+        AREA3D
     }
 }
