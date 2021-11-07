@@ -67,7 +67,29 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(double posX, double posY, double dirX, double dirY) {
-        return lineIntersection(posX, posY, dirX, dirY, Intersection.ANY) != null;
+        return lineIntersection(posX, posY, dirX, dirY, Intersection.ANY_2D) != null;
+    }
+
+    /**
+     * Returns any intersection between the specified line and this area
+     * <br><br>
+     * @param pos line position
+     * @param dir line direction
+     * @return any line intersection position, null if none
+     */
+    default Vector2d lineIntersection(@NotNull Vector2d pos, @NotNull Vector2d dir) {
+        return lineIntersection(pos, dir, Intersection.ANY_2D);
+    }
+
+    /**
+     * Returns true if the specified line intersects this area.
+     * <br><br>
+     * @param pos line position
+     * @param dir line direction
+     * @return true if the line intersects this object, false otherwise
+     */
+    default boolean lineIntersects(@NotNull Vector2d pos, @NotNull Vector2d dir) {
+        return lineIntersection(pos, dir) != null;
     }
 
     /**

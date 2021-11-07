@@ -1,19 +1,20 @@
 package dev.emortal.rayfast.area;
 
 import dev.emortal.rayfast.vector.Vector;
+import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public interface Area<V extends Vector> {
+public interface Area<V extends Vector<V>> {
 
     ////////////////////
     // Contains point //
     ////////////////////
 
     // This intersection option is used to find whether the area contains this point
-    Intersection<Collection<? extends Vector>> ALL_FORWARDS = Intersection.builder()
+    Intersection<Collection<Vector2d>> ALL_FORWARDS = Intersection.builder()
             .direction(Intersection.Direction.FORWARDS)
             .build(Intersection.Collector.ALL);
 
@@ -38,27 +39,4 @@ public interface Area<V extends Vector> {
      * @return the intersection result
      */
     <R> @Nullable R lineIntersection(@NotNull V pos, @NotNull V dir, @NotNull Intersection<R> intersection);
-
-    /**
-     * Returns any intersection between the specified line and this area
-     * <br><br>
-     * @param pos line position
-     * @param dir line direction
-     * @return any line intersection position, null if none
-     */
-    @SuppressWarnings("unchecked")
-    default V lineIntersection(@NotNull V pos, @NotNull V dir) {
-        return (V) lineIntersection(pos, dir, Intersection.ANY);
-    }
-
-    /**
-     * Returns true if the specified line intersects this area.
-     * <br><br>
-     * @param pos line position
-     * @param dir line direction
-     * @return true if the line intersects this object, false otherwise
-     */
-    default boolean lineIntersects(@NotNull V pos, @NotNull V dir) {
-        return lineIntersection(pos, dir) != null;
-    }
 }

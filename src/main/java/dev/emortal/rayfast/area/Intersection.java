@@ -1,6 +1,8 @@
 package dev.emortal.rayfast.area;
 
 import dev.emortal.rayfast.vector.Vector;
+import dev.emortal.rayfast.vector.Vector2d;
+import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -11,7 +13,11 @@ import java.util.Collection;
  */
 final public class Intersection<R> {
 
-    public static final Intersection<? extends Vector> ANY = Intersection.builder()
+    public static final Intersection<Vector2d> ANY_2D = Intersection.builder()
+            .direction(Direction.ANY)
+            .build(Collector.ANY);
+
+    public static final Intersection<Vector3d> ANY_3D = Intersection.builder()
             .direction(Direction.ANY)
             .build(Collector.ANY);
 
@@ -22,14 +28,10 @@ final public class Intersection<R> {
     private final Direction direction;
     private final Collector<R> collector;
 
-    private Intersection(Direction direction, Collector<R> collector) {
-        this.direction = direction;
-        this.collector = collector;
-    }
-
     @SuppressWarnings("unchecked")
-    public <T> @NotNull Intersection<T> cast() {
-        return (Intersection<T>) this;
+    private Intersection(Direction direction, Collector<?> collector) {
+        this.direction = direction;
+        this.collector = (Collector<R>) collector;
     }
 
     public Direction direction() {
@@ -77,7 +79,7 @@ final public class Intersection<R> {
             return this;
         }
 
-        public <R> @NotNull Intersection<R> build(@NotNull Collector<R> collector) {
+        public <R> @NotNull Intersection<R> build(@NotNull Collector<?> collector) {
             return new Intersection<>(direction, collector);
         }
     }

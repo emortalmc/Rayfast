@@ -162,7 +162,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea3d() {
 
-        final Intersection<Vector3d> intersection = Intersection.ANY.cast();
+        final Intersection<Vector3d> intersection = Intersection.ANY_3D;
 
         {
             long millis = System.currentTimeMillis();
@@ -193,7 +193,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea2d() {
 
-        final Intersection<Vector2d> intersection = Intersection.ANY.cast();
+        final Intersection<Vector2d> intersection = Intersection.ANY_2D;
 
         {
             long millis = System.currentTimeMillis();

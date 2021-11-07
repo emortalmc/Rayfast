@@ -21,7 +21,7 @@ import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dToBoolean;
 
 public class CombinedCast {
 
-    private static final @NotNull Intersection<? extends Vector> INTERSECTION_FORWARDS_ANY = Intersection.builder()
+    private static final @NotNull Intersection<Vector3d> INTERSECTION_3_D_FORWARDS_ANY = Intersection.builder()
             .direction(Intersection.Direction.FORWARDS)
             .build(Intersection.Collector.ANY);
 
@@ -98,7 +98,7 @@ public class CombinedCast {
             // Do the deed
             Area3d area3d = area3dLike.asArea3d();
 
-            Vector3d intersection = (Vector3d) area3d.lineIntersection(pos, dir, INTERSECTION_FORWARDS_ANY);
+            Vector3d intersection = area3d.lineIntersection(pos, dir, INTERSECTION_3_D_FORWARDS_ANY);
 
             if (intersection == null) {
                 continue;

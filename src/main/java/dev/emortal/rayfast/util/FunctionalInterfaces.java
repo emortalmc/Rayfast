@@ -27,12 +27,21 @@ public class FunctionalInterfaces {
     }
 
     @FunctionalInterface
-    public interface LinesWrapper<T> {
+    public interface Lines2dWrapper<T> {
         @NotNull Map<Vector2d, Vector2d> get(@NotNull T object);
+    }
+
+    @FunctionalInterface
+    public interface Lines3dWrapper<T> {
+        @NotNull Map<Vector3d, Vector3d> get(@NotNull T object);
     }
 
     @FunctionalInterface
     public interface Vector3dWrapper<T> {
         @NotNull Vector3d get(@NotNull T object);
+    }
+
+    public interface DoubleArrayFunction<T> {
+        @NotNull T create(double @NotNull [] array);
     }
 }

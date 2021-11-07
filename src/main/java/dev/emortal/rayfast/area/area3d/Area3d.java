@@ -4,6 +4,7 @@ import dev.emortal.rayfast.area.Area;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Converter;
 import dev.emortal.rayfast.vector.Vector;
+import dev.emortal.rayfast.vector.Vector2d;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +81,29 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
-        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY) != null;
+        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY_3D) != null;
+    }
+
+    /**
+     * Returns any intersection between the specified line and this area
+     * <br><br>
+     * @param pos line position
+     * @param dir line direction
+     * @return any line intersection position, null if none
+     */
+    default Vector3d lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir) {
+        return lineIntersection(pos, dir, Intersection.ANY_3D);
+    }
+
+    /**
+     * Returns true if the specified line intersects this area.
+     * <br><br>
+     * @param pos line position
+     * @param dir line direction
+     * @return true if the line intersects this object, false otherwise
+     */
+    default boolean lineIntersects(@NotNull Vector3d pos, @NotNull Vector3d dir) {
+        return lineIntersection(pos, dir) != null;
     }
 
     /**
