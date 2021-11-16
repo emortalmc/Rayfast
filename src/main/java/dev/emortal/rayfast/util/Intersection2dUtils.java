@@ -17,6 +17,23 @@ public class Intersection2dUtils {
     /*
     A line intersection bounded by the intersecting line points
      */
+
+    /**
+     *
+     * @param direction the direction
+     *
+     * @param a the x of line A, point 1
+     * @param b the y of line A, point 1
+     * @param c the x of line A, point 2
+     * @param d the y of line A, point 2
+     *
+     * @param f the x of line B, point 1
+     * @param g the y of line B, point 1
+     * @param h the x of line B, point 2
+     * @param i the y of line B, point 2
+     *
+     * @return the intersection
+     */
     @ApiStatus.Internal
     public static Vector2d lineIntersection(
             Intersection.Direction direction,

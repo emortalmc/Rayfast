@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.Function;
 
 @ApiStatus.Internal
 public class FunctionalInterfaces {
@@ -27,21 +28,14 @@ public class FunctionalInterfaces {
     }
 
     @FunctionalInterface
-    public interface Lines2dWrapper<T> {
-        @NotNull Map<Vector2d, Vector2d> get(@NotNull T object);
+    public interface Lines2dWrapper<T> extends Function<T, @NotNull Map<Vector2d, Vector2d>> {
     }
 
     @FunctionalInterface
-    public interface Lines3dWrapper<T> {
-        @NotNull Map<Vector3d, Vector3d> get(@NotNull T object);
+    public interface Lines3dWrapper<T> extends Function<T, @NotNull Map<Vector3d, Vector3d>> {
     }
 
     @FunctionalInterface
-    public interface Vector3dWrapper<T> {
-        @NotNull Vector3d get(@NotNull T object);
-    }
-
-    public interface DoubleArrayFunction<T> {
-        @NotNull T create(double @NotNull [] array);
+    public interface Vector3dWrapper<T> extends Function<T, Vector3d> {
     }
 }

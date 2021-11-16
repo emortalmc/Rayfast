@@ -91,6 +91,6 @@ public interface Area2dPolygon extends Area2d {
             T object,
             FunctionalInterfaces.Lines2dWrapper<T> linesGetter
     ) {
-        return (Area2dPolygon) () -> linesGetter.get(object);
+        return (Area2dPolygon) () -> linesGetter.apply(object);
     }
 }

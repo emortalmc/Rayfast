@@ -23,7 +23,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      */
     default boolean containsPoint(double x, double y) {
         // Find all intersections
-        Collection<? extends Vector> result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
+        Collection<Vector2d> result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
         assert result != null;

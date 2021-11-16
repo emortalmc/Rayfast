@@ -277,32 +277,32 @@ public interface Area3dRectangularPrism extends Area3d {
         return new Area3dRectangularPrism() {
             @Override
             public double getMinX() {
-                return minGetter.get(object).x();
+                return minGetter.apply(object).x();
             }
 
             @Override
             public double getMinY() {
-                return minGetter.get(object).y();
+                return minGetter.apply(object).y();
             }
 
             @Override
             public double getMinZ() {
-                return minGetter.get(object).z();
+                return minGetter.apply(object).z();
             }
 
             @Override
             public double getMaxX() {
-                return maxGetter.get(object).x();
+                return maxGetter.apply(object).x();
             }
 
             @Override
             public double getMaxY() {
-                return maxGetter.get(object).y();
+                return maxGetter.apply(object).y();
             }
 
             @Override
             public double getMaxZ() {
-                return maxGetter.get(object).z();
+                return maxGetter.apply(object).z();
             }
         };
     }
