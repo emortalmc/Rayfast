@@ -1,5 +1,6 @@
 package dev.emortal.rayfast.area;
 
+import dev.emortal.rayfast.area.area2d.Area2d;
 import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +15,11 @@ public interface Area<V extends Vector<V>> {
     ////////////////////
 
     // This intersection option is used to find whether the area contains this point
-    Intersection<Collection<Vector2d>> ALL_FORWARDS = Intersection.builder()
-            .direction(Intersection.Direction.FORWARDS)
-            .build(Intersection.Collector.ALL);
+    Intersection<Collection<Intersection.Result<Area2d, Vector2d>>> ALL_FORWARDS = Intersection.builder()
+            .area2d()
+            .forwards()
+            .all()
+            .none();
 
     /**
      * Returns true if the specified point is inside this area
@@ -39,4 +42,6 @@ public interface Area<V extends Vector<V>> {
      * @return the intersection result
      */
     <R> @Nullable R lineIntersection(@NotNull V pos, @NotNull V dir, @NotNull Intersection<R> intersection);
+
+    double size();
 }

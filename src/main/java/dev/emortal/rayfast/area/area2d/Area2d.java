@@ -3,14 +3,12 @@ package dev.emortal.rayfast.area.area2d;
 import dev.emortal.rayfast.area.Area;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Converter;
-import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface Area2d extends Area<Vector2d>, Area2dLike {
     Converter<Area2d> CONVERTER = new Converter<>();
@@ -23,10 +21,9 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      */
     default boolean containsPoint(double x, double y) {
         // Find all intersections
-        Collection<Vector2d> result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
+        var result = lineIntersection(x, y, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
-        assert result != null;
         return result.size() % 2 != 0;
     }
 
@@ -44,7 +41,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @param dirY line Y direction
      * @return the computed line intersection position, null if none
      */
-    <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection);
+    <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection);
 
     /**
      * Returns the intersection between the specified line and this object
@@ -53,7 +50,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @param dir line direction
      * @return the computed line intersection position, null if none
      */
-    default <R> @Nullable R lineIntersection(@NotNull Vector2d pos, @NotNull Vector2d dir, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(@NotNull Vector2d pos, @NotNull Vector2d dir, @NotNull Intersection<R> intersection) {
         return lineIntersection(pos.x(), pos.y(), dir.x(), dir.y(), intersection);
     }
 
@@ -67,7 +64,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(double posX, double posY, double dirX, double dirY) {
-        return lineIntersection(posX, posY, dirX, dirY, Intersection.ANY_2D) != null;
+        return lineIntersection(posX, posY, dirX, dirY, Intersection.ANY_2D).intersection() != null;
     }
 
     /**
@@ -77,7 +74,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @param dir line direction
      * @return any line intersection position, null if none
      */
-    default Vector2d lineIntersection(@NotNull Vector2d pos, @NotNull Vector2d dir) {
+    default @NotNull Intersection.Result<Area2d, Vector2d> lineIntersection(@NotNull Vector2d pos, @NotNull Vector2d dir) {
         return lineIntersection(pos, dir, Intersection.ANY_2D);
     }
 
@@ -89,7 +86,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(@NotNull Vector2d pos, @NotNull Vector2d dir) {
-        return lineIntersection(pos, dir) != null;
+        return lineIntersection(pos, dir).intersection() != null;
     }
 
     /**
@@ -120,43 +117,39 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
 
     class Area2dCombined implements Area2d {
 
-        private final Area2d[] all;
+        private final List<Area2d> all;
 
         private Area2dCombined(Area2d... area2ds) {
-            this.all = area2ds;
+            this.all = List.of(area2ds);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public <R> R lineIntersection(double posX, double posY, double dirX, double dirY, Intersection<R> intersection) {
-            Intersection.Collector<R> collector = intersection.collector();
+        public <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, Intersection<R> intersection) {
+            Intersection.Collector collector = intersection.collector();
+            Intersection.Orderer<Intersection.Result<Area2d, Vector2d>> orderer =
+                    (Intersection.Orderer<Intersection.Result<Area2d, Vector2d>>) intersection.orderer();
 
-            switch (collector.type()) {
-                default:
-                case ANY:
-                    for (Area2d area2d : all) {
-                        R result = area2d.lineIntersection(posX, posY, dirX, dirY, intersection);
+            return switch (collector) {
+                case SINGLE -> (R) all.stream()
+                        .map(area -> area.lineIntersection(posX, posY, dirX, dirY, intersection))
+                        .map(result -> (Intersection.Result<Area2d, Vector2d>) result)
+                        .filter(result -> result.intersection() != null)
+                        .min(orderer)
+                        .orElseGet(() -> Intersection.Result.none(this));
+                case ALL -> (R) all.stream()
+                        .map(area -> area.lineIntersection(posX, posY, dirX, dirY, intersection))
+                        .map(result -> (Collection<Intersection.Result<Area2d, Vector2d>>) result)
+                        .flatMap(Collection::stream)
+                        .sorted(orderer)
+                        .collect(Collectors.toList());
+            };
+        }
 
-                        if (result != null) {
-                            return result;
-                        }
-                    }
-                    return null;
-                case ALL:
-
-                    final List<Vector2d> list = new ArrayList<>();
-
-                    for (Area2d area2d : all) {
-
-                        R result = area2d.lineIntersection(posX, posY, dirX, dirY, intersection);
-
-                        if (result != null) {
-                            list.addAll((Collection<? extends Vector2d>) result);
-                        }
-                    }
-
-                    return (R) list;
-            }
+        @Override
+        public double size() {
+            // TODO: Make this work correctly, right now it is an estimate
+            return all.stream().mapToDouble(Area2d::size).sum();
         }
     }
 

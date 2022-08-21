@@ -67,12 +67,12 @@ public class RunBenchmarks {
 
         Arrays.fill(wrappers, Area3dRectangularPrism.wrapper(
                 exampleRaycastEntity.getBoundingBox(),
-                ExampleRaycastEntity.BoundingBox::getMinX,
-                ExampleRaycastEntity.BoundingBox::getMinY,
-                ExampleRaycastEntity.BoundingBox::getMinZ,
-                ExampleRaycastEntity.BoundingBox::getMaxX,
-                ExampleRaycastEntity.BoundingBox::getMaxY,
-                ExampleRaycastEntity.BoundingBox::getMaxZ
+                ExampleRaycastEntity.BoundingBox::minX,
+                ExampleRaycastEntity.BoundingBox::minY,
+                ExampleRaycastEntity.BoundingBox::minZ,
+                ExampleRaycastEntity.BoundingBox::maxX,
+                ExampleRaycastEntity.BoundingBox::maxY,
+                ExampleRaycastEntity.BoundingBox::maxZ
         ));
 
         wrapperCombined = Area3d.combined(wrappers);
@@ -104,32 +104,32 @@ public class RunBenchmarks {
 
             combinedCastAreas.add(new Area3dRectangularPrism() {
                 @Override
-                public double getMinX() {
+                public double minX() {
                     return minX;
                 }
 
                 @Override
-                public double getMinY() {
+                public double minY() {
                     return minY;
                 }
 
                 @Override
-                public double getMinZ() {
+                public double minZ() {
                     return minZ;
                 }
 
                 @Override
-                public double getMaxX() {
+                public double maxX() {
                     return maxX;
                 }
 
                 @Override
-                public double getMaxY() {
+                public double maxY() {
                     return maxY;
                 }
 
                 @Override
-                public double getMaxZ() {
+                public double maxZ() {
                     return maxZ;
                 }
             });
@@ -162,7 +162,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea3d() {
 
-        final Intersection<Vector3d> intersection = Intersection.ANY_3D;
+        final Intersection<Intersection.Result<Area3d, Vector3d>> intersection = Intersection.ANY_3D;
 
         {
             long millis = System.currentTimeMillis();
@@ -193,7 +193,7 @@ public class RunBenchmarks {
 
     private static void benchmarkArea2d() {
 
-        final Intersection<Vector2d> intersection = Intersection.ANY_2D;
+        final Intersection<Intersection.Result<Area2d, Vector2d>> intersection = Intersection.ANY_2D;
 
         {
             long millis = System.currentTimeMillis();

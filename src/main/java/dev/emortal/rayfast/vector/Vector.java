@@ -11,7 +11,7 @@ public interface Vector<V extends Vector<V>> {
      * Returns the number of dimensions
      * @return the number of dimensions
      */
-    int getDimensions();
+    int dimensions();
 
     /**
      * Returns the value of the specified dimension
@@ -21,10 +21,11 @@ public interface Vector<V extends Vector<V>> {
     double get(int dimension);
 
     /**
-     * Returns the vector factory
-     * @return the vector factory
+     * Creates a new vector with the specified values
+     * @param values the values
+     * @return a new vector with the specified values
      */
-    Function<double[], V> getFactory();
+    V with(double... values);
 
     /**
      * Returns the sum of this vector and the specified vector
@@ -33,12 +34,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V add(V v) {
         // Add all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) + v.get(i);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -48,12 +49,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V subtract(V v) {
         // Subtract all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) - v.get(i);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -63,12 +64,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V multiply(V v) {
         // Multiply all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) * v.get(i);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -78,12 +79,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V divide(V v) {
         // Divide all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) / v.get(i);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -94,7 +95,7 @@ public interface Vector<V extends Vector<V>> {
     default double dot(V v) {
         // Multiply all the values
         double result = 0;
-        for (int i = 0; i < getDimensions(); i++) {
+        for (int i = 0; i < dimensions(); i++) {
             result += get(i) * v.get(i);
         }
         // Return the new vector
@@ -108,7 +109,7 @@ public interface Vector<V extends Vector<V>> {
     default double magnitude() {
         // Multiply all the values
         double result = 0;
-        for (int i = 0; i < getDimensions(); i++) {
+        for (int i = 0; i < dimensions(); i++) {
             result += get(i) * get(i);
         }
         // Return the new vector
@@ -121,12 +122,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V unit() {
         // Multiply all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) / magnitude();
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -136,12 +137,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V project(V v) {
         // Multiply all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) * dot(v) / dot(v);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -151,12 +152,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V reject(V v) {
         // Multiply all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) - dot(v) / dot(v);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -166,12 +167,12 @@ public interface Vector<V extends Vector<V>> {
      */
     default V cross(V v) {
         // Multiply all the values
-        double[] values = new double[getDimensions()];
+        double[] values = new double[dimensions()];
         for (int i = 0; i < values.length; i++) {
             values[i] = get(i) * v.get(i);
         }
         // Return the new vector
-        return getFactory().apply(values);
+        return with(values);
     }
 
     /**
@@ -182,9 +183,9 @@ public interface Vector<V extends Vector<V>> {
         // Create the string
         StringBuilder sb = new StringBuilder();
         sb.append("(");
-        for (int i = 0; i < getDimensions(); i++) {
+        for (int i = 0; i < dimensions(); i++) {
             sb.append(get(i));
-            if (i < getDimensions() - 1) {
+            if (i < dimensions() - 1) {
                 sb.append(", ");
             }
         }

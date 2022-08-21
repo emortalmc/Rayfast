@@ -6,74 +6,66 @@ import dev.emortal.rayfast.util.Intersection2dUtils;
 import dev.emortal.rayfast.vector.Vector2d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a 2d polygon
  */
 public interface Area2dPolygon extends Area2d {
 
-    Map<Vector2d, Vector2d> getLines();
+    Map<Vector2d, Vector2d> lines();
 
     @Override
     @ApiStatus.Internal
     @SuppressWarnings("unchecked")
-    default <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
         Intersection.Direction direction = intersection.direction();
+        Intersection.Orderer<Intersection.Result<Area2dPolygon, Vector2d>> orderer =
+                (Intersection.Orderer<Intersection.Result<Area2dPolygon, Vector2d>>) intersection.orderer();
 
         final double posXb = dirX + posX;
         final double posYb = dirY + posY;
 
-        switch (intersection.collector().type()) {
-            default:
-            case ANY:
-                for (Map.Entry<Vector2d, Vector2d> line : getLines().entrySet()) {
-                    Vector2d pos1 = line.getKey();
-                    Vector2d pos2 = line.getValue();
+        return switch (intersection.collector()) {
+            case SINGLE -> (R) lines().entrySet().stream()
+                    .map(entry -> {
+                        Vector2d pos1 = entry.getKey();
+                        Vector2d pos2 = entry.getValue();
 
-                    Vector2d pos = Intersection2dUtils.lineIntersection(
-                            direction,
+                        return Intersection2dUtils.lineIntersection(
+                                this,
+                                direction,
 
-                            posX, posY,
-                            posXb, posYb,
+                                posX, posY,
+                                posXb, posYb,
 
-                            pos1.x(), pos1.y(),
-                            pos2.x(), pos2.y()
-                    );
+                                pos1.x(), pos1.y(),
+                                pos2.x(), pos2.y()
+                        );
+                    })
+                    .min(orderer)
+                    .orElseGet(() -> Intersection.Result.none(this));
+            case ALL -> (R) lines().entrySet().stream()
+                    .map(entry -> {
+                        Vector2d pos1 = entry.getKey();
+                        Vector2d pos2 = entry.getValue();
 
-                    if (pos != null) {
-                        return (R) pos;
-                    }
-                }
+                        return Intersection2dUtils.lineIntersection(
+                                this,
+                                direction,
 
-                return null;
-            case ALL:
-                List<Vector2d> result = new ArrayList<>();
+                                posX, posY,
+                                posXb, posYb,
 
-                for (Map.Entry<Vector2d, Vector2d> line : getLines().entrySet()) {
-                    Vector2d pos1 = line.getKey();
-                    Vector2d pos2 = line.getValue();
-
-                    Vector2d pos = Intersection2dUtils.lineIntersection(
-                            direction,
-
-                            posX, posY,
-                            posXb, posYb,
-
-                            pos1.x(), pos1.y(),
-                            pos2.x(), pos2.y()
-                    );
-
-                    if (pos != null) {
-                        result.add(pos);
-                    }
-                }
-                return (R) result;
-        }
+                                pos1.x(), pos1.y(),
+                                pos2.x(), pos2.y()
+                        );
+                    })
+                    .sorted(orderer)
+                    .collect(Collectors.toList());
+        };
     }
 
     /**
@@ -87,10 +79,13 @@ public interface Area2dPolygon extends Area2d {
      * @param <T> the type of the wrapped object
      * @return the area that is represented by this wrapped object
      */
-    static <T> Area2d wrapper(
-            T object,
-            FunctionalInterfaces.Lines2dWrapper<T> linesGetter
-    ) {
+    static <T> Area2d wrapper(T object, FunctionalInterfaces.Lines2dWrapper<T> linesGetter) {
         return (Area2dPolygon) () -> linesGetter.apply(object);
+    }
+
+    @Override
+    default double size() {
+        // TODO: Polygon size
+        return 0;
     }
 }

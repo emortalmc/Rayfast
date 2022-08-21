@@ -41,27 +41,27 @@ public abstract class ExampleRaycastEntity implements Area3dLike {
         }
 
         // Coordinates
-        public double getMinX() {
+        public double minX() {
             return exampleRaycastEntity.getX() - halfWidth;
         }
 
-        public double getMinY() {
+        public double minY() {
             return exampleRaycastEntity.getY() - halfHeight;
         }
 
-        public double getMinZ() {
+        public double minZ() {
             return exampleRaycastEntity.getZ() - halfDepth;
         }
 
-        public double getMaxX() {
+        public double maxX() {
             return exampleRaycastEntity.getX() + halfWidth;
         }
 
-        public double getMaxY() {
+        public double maxY() {
             return exampleRaycastEntity.getY() + halfHeight;
         }
 
-        public double getMaxZ() {
+        public double maxZ() {
             return exampleRaycastEntity.getZ() + halfDepth;
         }
     }

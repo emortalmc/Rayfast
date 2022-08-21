@@ -55,6 +55,6 @@ public class Converter<C> {
         }
 
         assert originalClazz != null;
-        throw new IllegalArgumentException(originalClazz.getName() + "object provided to Converter#from did not have a registered converter");
+        throw new IllegalArgumentException(originalClazz.getName() + " object provided to Converter#from did not have a registered converter");
     }
 }

@@ -4,6 +4,8 @@ package dev.emortal.rayfast.util;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Internal Intersection Utils.
@@ -13,9 +15,18 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public class Intersection3dUtils {
+    private static class IncompleteResult {
+        Vector3d start;
+        Vector3d direction;
+        @Nullable Vector3d intersection;
+        @Nullable Vector3d normal;
+    }
+
+    private static final ThreadLocal<IncompleteResult> THREAD_LOCAL = ThreadLocal.withInitial(IncompleteResult::new);
 
     @ApiStatus.Internal
-    public static Vector3d planeIntersection(
+    public static @NotNull <A> Intersection.Result<A, Vector3d> planeIntersection(
+            A area,
             Intersection.Direction direction,
             // Line
             double posX, double posY, double posZ, // Position vector
@@ -23,26 +34,26 @@ public class Intersection3dUtils {
             // Plane
             double minX, double minY, double minZ,
             double adjX, double adjY, double adjZ,
-            double maxX, double maxY, double maxZ
-    ) {
-        Vector3d vector = getIntersection(
-                direction,
+            double maxX, double maxY, double maxZ) {
 
-                posX, posY, posZ,
-                dirX, dirY, dirZ,
+        IncompleteResult result = THREAD_LOCAL.get();
+        result.start = Vector3d.of(posX, posY, posZ);
+        result.direction = Vector3d.of(dirX, dirY, dirZ);
+        result.intersection = null;
+        result.normal = null;
 
+        getIntersection(direction, result,
                 minX, minY, minZ,
                 adjX, adjY, adjZ,
-                maxX, maxY, maxZ
-        );
+                maxX, maxY, maxZ);
 
-        if (vector == null) {
-            return null;
+        if (result.intersection == null) {
+            return Intersection.Result.none(area);
         }
 
-        double x = vector.x();
-        double y = vector.y();
-        double z = vector.z();
+        double x = result.intersection.x();
+        double y = result.intersection.y();
+        double z = result.intersection.z();
 
         int fits = 0;
 
@@ -59,10 +70,19 @@ public class Intersection3dUtils {
         }
 
         if (fits < 2) {
-            return null;
+            return Intersection.Result.none(area);
         }
 
-        return vector;
+        Vector3d start = result.start;
+        Vector3d end = result.intersection;
+
+        // Find distance
+        double distX = start.x() - end.x();
+        double distY = start.y() - end.y();
+        double distZ = start.z() - end.z();
+        double dist = Math.sqrt(distX * distX + distY * distY + distZ * distZ);
+
+        return Intersection.Result.of(result.intersection, result.normal, area, dist);
     }
 
     @ApiStatus.Internal
@@ -74,17 +94,18 @@ public class Intersection3dUtils {
     }
 
     @ApiStatus.Internal
-    public static Vector3d getIntersection(
+    public static void getIntersection(
             // Line direction
             Intersection.Direction direction,
-
-            // Line
-            double posX, double posY, double posZ, // Position vector
-            double dirX, double dirY, double dirZ, // Direction vector
+            // Result
+            IncompleteResult result,
             // Plane
             double planeX, double planeY, double planeZ, // Plane point
             double planeDirX, double planeDirY, double planeDirZ // Plane normal
     ) {
+        double posX = result.start.x();     double posY = result.start.y();     double posZ = result.start.z();
+        double dirX = result.direction.x(); double dirY = result.direction.y(); double dirZ = result.direction.z();
+
         // Sensitive (speed oriented) code:
         double dotA = planeDirX * planeX + planeDirY * planeY + planeDirZ * planeZ;
         double dotB = planeDirX * posX + planeDirY * posY + planeDirZ * posZ;
@@ -95,45 +116,46 @@ public class Intersection3dUtils {
         double y = posY + (dirY * t);
         double z = posZ + (dirZ * t);
 
-        switch (direction) {
-            default:
-            case ANY: {
-                return Vector3d.of(x, y, z);
+        // Get the normal vector
+        double normalX = planeX - x;
+        double normalY = planeY - y;
+        double normalZ = planeZ - z;
+
+        Vector3d intersection = Vector3d.of(x, y, z);
+        Vector3d normal = Vector3d.of(normalX, normalY, normalZ);
+
+        if (direction == Intersection.Direction.ANY) {
+            result.intersection = intersection;
+            result.normal = normal;
+            return;
+        }
+
+        double dotProduct = dirX * (x - posX) + dirY * (y - posY) + dirZ * (z - posZ);
+
+        if (direction == Intersection.Direction.FORWARDS) {
+            if (dotProduct < 0) {
+                return;
             }
-            case FORWARDS: {
-                // Check if position is forwards
-                double dotProduct = dirX * (x - posX) + dirY * (y - posY) + dirZ * (z - posZ);
-
-                if (dotProduct > 0) {
-                    return Vector3d.of(x, y, z);
-                }
-                return null;
-            }
-            case BACKWARDS: {
-                // Check if position is forwards
-                double dotProduct = dirX * (x - posX) + dirY * (y - posY) + dirZ * (z - posZ);
-
-                if (dotProduct < 0) {
-                    return Vector3d.of(x, y, z);
-                }
-
-                return null;
+        } else if (direction == Intersection.Direction.BACKWARDS) {
+            if (dotProduct > 0) {
+                return;
             }
         }
+
+        result.intersection = intersection;
+        result.normal = normal;
     }
 
     @ApiStatus.Internal
-    public static Vector3d getIntersection(
+    public static void getIntersection(
             // Line Direction
             Intersection.Direction direction,
-            // Line
-            double posX, double posY, double posZ, // Position vector
-            double dirX, double dirY, double dirZ, // Direction vector
+            // Result
+            IncompleteResult result,
             // Plane
             double minX, double minY, double minZ,
             double adjX, double adjY, double adjZ,
-            double maxX, double maxY, double maxZ
-    ) {
+            double maxX, double maxY, double maxZ) {
 
         double v1x = minX - adjX;
         double v1y = minY - adjY;
@@ -146,12 +168,11 @@ public class Intersection3dUtils {
         double crossY = v1z * v2x - v2z * v1x;
         double crossZ = v1x * v2y - v2x * v1y;
 
-        return getIntersection(
+        getIntersection(
                 // Line Direction
                 direction,
                 // Line
-                posX, posY, posZ,
-                dirX, dirY, dirZ,
+                result,
                 // Plane
                 minX, minY, minZ,
                 crossX, crossY, crossZ

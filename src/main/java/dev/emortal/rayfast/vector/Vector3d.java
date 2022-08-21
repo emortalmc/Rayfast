@@ -12,55 +12,29 @@ public interface Vector3d extends Vector<Vector3d> {
     double z();
 
     @Override
-    default int getDimensions() {
+    default int dimensions() {
         return 3;
     }
 
     @Override
     default double get(int index) {
-        switch (index) {
-            case 0:
-                return x();
-            case 1:
-                return y();
-            case 2:
-                return z();
-            default:
-                throw new IllegalArgumentException("Index must be between 0 and 2");
-        }
+        return switch (index) {
+            case 0 -> x();
+            case 1 -> y();
+            case 2 -> z();
+            default -> throw new IllegalArgumentException("Index must be between 0 and 2");
+        };
     }
 
     @Override
-    default Function<double[], Vector3d> getFactory() {
-        return (double[] values) -> {
-            if (values.length != 3) {
-                throw new IllegalArgumentException("Expected 2 values, got " + values.length);
-            }
-            return of(values[0], values[1], values[2]);
-        };
+    default Vector3d with(double... values) {
+        if (values.length != 3) {
+            throw new IllegalArgumentException("Vector3d requires 3 values");
+        }
+        return Vector3d.of(values[0], values[1], values[2]);
     }
 
     static Vector3d of(double x, double y, double z) {
-        return new Vector3d() {
-            @Override
-            public double x() {
-                return x;
-            }
-
-            @Override
-            public double y() {
-                return y;
-            }
-
-            @Override
-            public double z() {
-                return z;
-            }
-
-            @Override
-            public String toString() {
-                return "Vector3d(" + x + ", " + y + ", " + z + ")";
-            }
-        };
+        return new Vector3dImpl(x, y, z);
     }
 }

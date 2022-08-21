@@ -7,6 +7,7 @@ import dev.emortal.rayfast.casting.grid.GridCast;
 import dev.emortal.rayfast.util.FunctionalInterfaces;
 import dev.emortal.rayfast.util.VectorMathUtil;
 import dev.emortal.rayfast.vector.Vector;
+import dev.emortal.rayfast.vector.Vector2d;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -19,11 +20,14 @@ import static dev.emortal.rayfast.casting.combined.CombinedCastResult.HitType;
 import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dArea3dToBoolean;
 import static dev.emortal.rayfast.util.FunctionalInterfaces.Vector3dToBoolean;
 
+// TODO: Ordering & Collection for combined cast
 public class CombinedCast {
 
-    private static final @NotNull Intersection<Vector3d> INTERSECTION_3_D_FORWARDS_ANY = Intersection.builder()
-            .direction(Intersection.Direction.FORWARDS)
-            .build(Intersection.Collector.ANY);
+    private static final @NotNull Intersection<Intersection.Result<Vector3d, Vector3d>> INTERSECTION_3D_FORWARDS_ANY = Intersection.builder()
+            .vector3d()
+            .forwards()
+            .first()
+            .distance();
 
     private final double max;
     private final double min;
@@ -33,14 +37,9 @@ public class CombinedCast {
     private final @Nullable Vector3dToBoolean gridFunction;
 
     @ApiStatus.Internal
-    private CombinedCast(
-            double min,
-            double max,
-            double gridSize,
-            boolean ordered,
-            @Nullable FunctionalInterfaces.Vector3dArea3dToBoolean areaFunction,
-            @Nullable Vector3dToBoolean gridFunction
-    ) {
+    private CombinedCast(double min, double max, double gridSize, boolean ordered,
+                         @Nullable FunctionalInterfaces.Vector3dArea3dToBoolean areaFunction,
+                         @Nullable Vector3dToBoolean gridFunction) {
         this.max = max;
         this.min = min;
         this.gridSize = gridSize;
@@ -56,11 +55,8 @@ public class CombinedCast {
      * @param dir the line dir
      * @return the list of all the hit results
      */
-    public @NotNull List<HitResult> apply(
-            @NotNull Collection<Area3dLike> area3ds,
-            @NotNull Vector3d pos,
-            @NotNull Vector3d dir
-    ) {
+    public @NotNull List<HitResult> apply(@NotNull Collection<Area3dLike> area3ds, @NotNull Vector3d pos,
+                                          @NotNull Vector3d dir) {
         // Cache the squared distance to remove the sqrt operation when checking distance
         double maxRange = max * max;
 
@@ -82,14 +78,9 @@ public class CombinedCast {
         return hitResults;
     }
 
-    private double handleArea3ds(
-            @NotNull Collection<Area3dLike> area3ds,
-            @NotNull Vector3d pos,
-            @NotNull Vector3d dir,
-            @NotNull Map<Area3d, Vector3d> area3dVector3dMap,
-            @NotNull List<HitResult> hitResults,
-            final double maxRange
-    ) {
+    private double handleArea3ds(@NotNull Collection<Area3dLike> area3ds, @NotNull Vector3d pos, @NotNull Vector3d dir,
+                                 @NotNull Map<Area3d, Vector3d> area3dVector3dMap, @NotNull List<HitResult> hitResults,
+                                 final double maxRange) {
 
         double intermediateMaxRange = maxRange;
 
@@ -98,7 +89,7 @@ public class CombinedCast {
             // Do the deed
             Area3d area3d = area3dLike.asArea3d();
 
-            Vector3d intersection = area3d.lineIntersection(pos, dir, INTERSECTION_3_D_FORWARDS_ANY);
+            Vector3d intersection = area3d.lineIntersection(pos, dir, INTERSECTION_3D_FORWARDS_ANY).intersection();
 
             if (intersection == null) {
                 continue;
@@ -134,12 +125,8 @@ public class CombinedCast {
         return intermediateMaxRange;
     }
 
-    private double handleGridCast(
-            @NotNull Vector3d pos,
-            @NotNull Vector3d dir,
-            @NotNull List<HitResult> hitResults,
-            final double maxRange
-    ) {
+    private double handleGridCast(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull List<HitResult> hitResults,
+                                  final double maxRange) {
         double intermediateMaxRange = maxRange;
 
         // Create gridcast iterator

@@ -12,10 +12,10 @@ import java.util.List;
 
 public interface Area2dRectangle extends Area2d {
 
-    double getMinX();
-    double getMinY();
-    double getMaxX();
-    double getMaxY();
+    double minX();
+    double minY();
+    double maxX();
+    double maxY();
 
     @SuppressWarnings("unchecked")
     default <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
@@ -26,121 +26,127 @@ public interface Area2dRectangle extends Area2d {
         double posYb = posY + dirY;
 
 
-        switch (intersection.collector().type()) {
-            case ANY:
+        switch (intersection.collector()) {
+            case SINGLE -> {
                 // Bottom line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMinY(),
-                            getMaxX(), getMinY(),
+                            minX(), minY(),
+                            maxX(), minY(),
                             posX, posY, posXb, posYb
                     );
-                    if (vector != null) {
-                        return (R) vector;
+                    if (result.intersection() != null) {
+                        return (R) result;
                     }
                 }
 
                 // Left line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMinY(),
-                            getMinX(), getMaxY(),
+                            minX(), minY(),
+                            minX(), maxY(),
                             posX, posY, posXb, posYb
                     );
 
-                    if (vector != null) {
-                        return (R) vector;
+                    if (result.intersection() != null) {
+                        return (R) result;
                     }
                 }
 
                 // Right line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMaxX(), getMinY(),
-                            getMaxX(), getMaxY(),
+                            maxX(), minY(),
+                            maxX(), maxY(),
                             posX, posY, posXb, posYb
                     );
 
-                    if (vector != null) {
-                        return (R) vector;
+                    if (result.intersection() != null) {
+                        return (R) result;
                     }
                 }
 
                 // Top line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMaxY(),
-                            getMaxX(), getMaxY(),
+                            minX(), maxY(),
+                            maxX(), maxY(),
                             posX, posY, posXb, posYb
                     );
 
-                    if (vector != null) {
-                        return (R) vector;
+                    if (result.intersection() != null) {
+                        return (R) result;
                     }
                 }
-
-                return null;
-            case ALL:
-                List<Vector2d> vectors = new ArrayList<>();
+                return (R) Intersection.Result.none(this);
+            }
+            case ALL -> {
+                List<Intersection.@NotNull Result<Area2dRectangle, Vector2d>> results = new ArrayList<>();
                 // Bottom line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.@NotNull Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMinY(),
-                            getMaxX(), getMinY(),
+                            minX(), minY(),
+                            maxX(), minY(),
                             posX, posY, posXb, posYb
                     );
-                    if (vector != null) {
-                        vectors.add(vector);
+                    if (result.intersection() != null) {
+                        results.add(result);
                     }
                 }
 
                 // Left line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.@NotNull Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMinY(),
-                            getMinX(), getMaxY(),
+                            minX(), minY(),
+                            minX(), maxY(),
                             posX, posY, posXb, posYb
                     );
-
-                    if (vector != null) {
-                        vectors.add(vector);
+                    if (result.intersection() != null) {
+                        results.add(result);
                     }
                 }
 
                 // Right line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.@NotNull Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMaxX(), getMinY(),
-                            getMaxX(), getMaxY(),
+                            maxX(), minY(),
+                            maxX(), maxY(),
                             posX, posY, posXb, posYb
                     );
-
-                    if (vector != null) {
-                        vectors.add(vector);
+                    if (result.intersection() != null) {
+                        results.add(result);
                     }
                 }
 
                 // Top line
                 {
-                    Vector2d vector = Intersection2dUtils.lineIntersection(
+                    Intersection.@NotNull Result<Area2dRectangle, Vector2d> result = Intersection2dUtils.lineIntersection(
+                            this,
                             direction,
-                            getMinX(), getMaxY(),
-                            getMaxX(), getMaxY(),
+                            minX(), maxY(),
+                            maxX(), maxY(),
                             posX, posY, posXb, posYb
                     );
-
-                    if (vector != null) {
-                        vectors.add(vector);
+                    if (result.intersection() != null) {
+                        results.add(result);
                     }
                 }
-                return (R) vectors;
+                return (R) results;
+            }
         }
 
         throw new IllegalStateException("Unknown intersection collector: " + intersection.collector());
@@ -169,24 +175,29 @@ public interface Area2dRectangle extends Area2d {
     ) {
         return new Area2dRectangle() {
             @Override
-            public double getMinX() {
+            public double minX() {
                 return minXGetter.get(object);
             }
 
             @Override
-            public double getMinY() {
+            public double minY() {
                 return minYGetter.get(object);
             }
 
             @Override
-            public double getMaxX() {
+            public double maxX() {
                 return maxXGetter.get(object);
             }
 
             @Override
-            public double getMaxY() {
+            public double maxY() {
                 return maxYGetter.get(object);
             }
         };
+    }
+
+    @Override
+    default double size() {
+        return (maxX() - minX()) * (maxY() - minY());
     }
 }

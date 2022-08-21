@@ -6,7 +6,6 @@ import dev.emortal.rayfast.util.Intersection3dUtils;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,37 +16,39 @@ import java.util.List;
 public interface Area3dRectangularPrism extends Area3d {
 
     // Coordinates
-    double getMinX();
-    double getMinY();
-    double getMinZ();
-    double getMaxX();
-    double getMaxY();
-    double getMaxZ();
+    double minX();
+    double minY();
+    double minZ();
+    double maxX();
+    double maxY();
+    double maxZ();
 
     @Override
     @ApiStatus.Internal
     @SuppressWarnings("unchecked")
-    default <R> @Nullable R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(double posX, double posY, double posZ,
+                                            double dirX, double dirY, double dirZ,
+                                            @NotNull Intersection<R> intersection) {
         // Update and get planes
-        double minX = getMinX();
-        double minY = getMinY();
-        double minZ = getMinZ();
-        double maxX = getMaxX();
-        double maxY = getMaxY();
-        double maxZ = getMaxZ();
+        double minX = minX();
+        double minY = minY();
+        double minZ = minZ();
+        double maxX = maxX();
+        double maxY = maxY();
+        double maxZ = maxZ();
 
-        // Don't initialize this collection until we know that we need to collect the values.
-        List<Vector3d> result = null;
+        List<Intersection.Result<Area3dRectangularPrism, Vector3d>> results = null;
 
-        Intersection.Collector.Type collectorType = intersection.collector().type();
+        Intersection.Collector collector = intersection.collector();
         Intersection.Direction direction = intersection.direction();
 
-        if (collectorType == Intersection.Collector.Type.ALL) {
-            result = new ArrayList<>();
+        if (collector == Intersection.Collector.ALL) {
+            results = new ArrayList<>();
         }
 
         { // Front
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -59,19 +60,17 @@ public interface Area3dRectangularPrism extends Area3d {
                     maxX, maxY, minZ
             );
 
-            if (pos != null) {
-                switch (collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
 
         { // Back
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -83,19 +82,17 @@ public interface Area3dRectangularPrism extends Area3d {
                     maxX, maxY, maxZ
             );
 
-            if (pos != null) {
-                switch(collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
 
         { // Left
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -107,19 +104,17 @@ public interface Area3dRectangularPrism extends Area3d {
                     minX, maxY, maxZ
             );
 
-            if (pos != null) {
-                switch(collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
 
         { // Right
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -131,19 +126,17 @@ public interface Area3dRectangularPrism extends Area3d {
                     maxX, maxY, maxZ
             );
 
-            if (pos != null) {
-                switch(collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
 
         { // Top
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -155,19 +148,17 @@ public interface Area3dRectangularPrism extends Area3d {
                     maxX, maxY, maxZ
             );
 
-            if (pos != null) {
-                switch(collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
 
         { // Bottom
-            Vector3d pos = Intersection3dUtils.planeIntersection(
+            Intersection.Result<Area3dRectangularPrism, Vector3d> result = Intersection3dUtils.planeIntersection(
+                    this,
                     // Line direction
                     direction,
                     // Line
@@ -179,30 +170,30 @@ public interface Area3dRectangularPrism extends Area3d {
                     maxX, minY, maxZ
             );
 
-            if (pos != null) {
-                switch(collectorType) {
-                    default:
-                    case ANY:
-                        return (R) pos;
-                    case ALL:
-                        result.add(pos);
+            if (result.intersection() != null) {
+                switch (collector) {
+                    case SINGLE: return (R) result;
+                    case ALL: results.add(result);
                 }
             }
         }
+        if (results == null) {
+            return (R) Intersection.Result.none(this);
+        }
 
-        return (R) result;
+        return (R) results;
     }
 
     @Override
     @ApiStatus.Internal
-    default <R> @Nullable R lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull Intersection<R> intersection) {
         return lineIntersection(pos.x(), pos.y(), pos.z(), dir.x(), dir.y(), dir.z(), intersection);
     }
 
     /**
      * Generates a wrapper for the specified object using the specified getters.
      * <br><br>
-     * This is a sub-optimal implementation. An ideal implementation implements the
+     * This is a suboptimal implementation. An ideal implementation implements the
      * Area3dRectangularPrism interface directly on the object.
      *
      * @param object the object to wrap
@@ -215,43 +206,48 @@ public interface Area3dRectangularPrism extends Area3d {
      * @param <T> the type of the wrapped object
      * @return the area that is represented by this wrapped object
      */
-    static <T> Area3d wrapper(
-            T object,
-            FunctionalInterfaces.DoubleWrapper<T> minXGetter,
-            FunctionalInterfaces.DoubleWrapper<T> minYGetter,
-            FunctionalInterfaces.DoubleWrapper<T> minZGetter,
-            FunctionalInterfaces.DoubleWrapper<T> maxXGetter,
-            FunctionalInterfaces.DoubleWrapper<T> maxYGetter,
-            FunctionalInterfaces.DoubleWrapper<T> maxZGetter
-    ) {
+    static <T> Area3dRectangularPrism wrapper(T object,
+                              FunctionalInterfaces.DoubleWrapper<T> minXGetter,
+                              FunctionalInterfaces.DoubleWrapper<T> minYGetter,
+                              FunctionalInterfaces.DoubleWrapper<T> minZGetter,
+                              FunctionalInterfaces.DoubleWrapper<T> maxXGetter,
+                              FunctionalInterfaces.DoubleWrapper<T> maxYGetter,
+                              FunctionalInterfaces.DoubleWrapper<T> maxZGetter) {
         return new Area3dRectangularPrism() {
             @Override
-            public double getMinX() {
+            public double size() {
+                double minX = minX(); double minY = minY(); double minZ = minZ();
+                double maxX = maxX(); double maxY = maxY(); double maxZ = maxZ();
+                return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
+            }
+
+            @Override
+            public double minX() {
                 return minXGetter.get(object);
             }
 
             @Override
-            public double getMinY() {
+            public double minY() {
                 return minYGetter.get(object);
             }
 
             @Override
-            public double getMinZ() {
+            public double minZ() {
                 return minZGetter.get(object);
             }
 
             @Override
-            public double getMaxX() {
+            public double maxX() {
                 return maxXGetter.get(object);
             }
 
             @Override
-            public double getMaxY() {
+            public double maxY() {
                 return maxYGetter.get(object);
             }
 
             @Override
-            public double getMaxZ() {
+            public double maxZ() {
                 return maxZGetter.get(object);
             }
         };
@@ -260,7 +256,7 @@ public interface Area3dRectangularPrism extends Area3d {
     /**
      * Generates a wrapper for the specified object using the specified getters.
      * <br><br>
-     * This is a sub-optimal implementation. An ideal implementation implements the
+     * This is a suboptimal implementation. An ideal implementation implements the
      * Area3dRectangularPrism interface directly on the object.
      *
      * @param object the object to wrap
@@ -269,41 +265,22 @@ public interface Area3dRectangularPrism extends Area3d {
      * @param <T> the type of the wrapped object
      * @return the area that is represented by this wrapped object
      */
-    static <T> Area3dRectangularPrism wrapper(
-            T object,
-            FunctionalInterfaces.Vector3dWrapper<T> minGetter,
-            FunctionalInterfaces.Vector3dWrapper<T> maxGetter
-    ) {
-        return new Area3dRectangularPrism() {
-            @Override
-            public double getMinX() {
-                return minGetter.apply(object).x();
-            }
+    static <T> Area3dRectangularPrism wrapper(T object,
+                                              FunctionalInterfaces.Vector3dWrapper<T> minGetter,
+                                              FunctionalInterfaces.Vector3dWrapper<T> maxGetter) {
+        return wrapper(
+                object,
+                ignored -> minGetter.apply(object).x(),
+                ignored -> minGetter.apply(object).y(),
+                ignored -> minGetter.apply(object).z(),
+                ignored -> maxGetter.apply(object).x(),
+                ignored -> maxGetter.apply(object).y(),
+                ignored -> maxGetter.apply(object).z()
+        );
+    }
 
-            @Override
-            public double getMinY() {
-                return minGetter.apply(object).y();
-            }
-
-            @Override
-            public double getMinZ() {
-                return minGetter.apply(object).z();
-            }
-
-            @Override
-            public double getMaxX() {
-                return maxGetter.apply(object).x();
-            }
-
-            @Override
-            public double getMaxY() {
-                return maxGetter.apply(object).y();
-            }
-
-            @Override
-            public double getMaxZ() {
-                return maxGetter.apply(object).z();
-            }
-        };
+    @Override
+    default double size() {
+        return (maxX() - minX()) * (maxY() - minY()) * (maxZ() - minZ());
     }
 }

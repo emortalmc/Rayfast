@@ -2,8 +2,13 @@ package dev.emortal.rayfast.util;
 
 
 import dev.emortal.rayfast.area.Intersection;
+import dev.emortal.rayfast.area.area2d.Area2d;
+import dev.emortal.rayfast.vector.Vector;
 import dev.emortal.rayfast.vector.Vector2d;
+import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Internal Intersection Utils.
@@ -13,6 +18,15 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public class Intersection2dUtils {
+
+    private static class IncompleteResult {
+        Vector2d start;
+        Vector2d direction;
+        @Nullable Vector2d intersection;
+        @Nullable Vector2d normal;
+    }
+
+    private static final ThreadLocal<IncompleteResult> THREAD_LOCAL = ThreadLocal.withInitial(IncompleteResult::new);
 
     /*
     A line intersection bounded by the intersecting line points
@@ -35,7 +49,8 @@ public class Intersection2dUtils {
      * @return the intersection
      */
     @ApiStatus.Internal
-    public static Vector2d lineIntersection(
+    public static @NotNull <A extends Area2d> Intersection.Result<A, Vector2d> lineIntersection(
+            A area,
             Intersection.Direction direction,
 
             // Source Line
@@ -46,6 +61,10 @@ public class Intersection2dUtils {
             double f, double g,
             double h, double i
     ) {
+        IncompleteResult result = THREAD_LOCAL.get();
+        result.start = Vector2d.of(a, b);
+        result.direction = Vector2d.of(c, d);
+
         // Intersection maths
         // See: https://www.desmos.com/calculator/grkbrmrmsu
 
@@ -54,41 +73,48 @@ public class Intersection2dUtils {
                 (a * g - c * g - a * i + c * i - b * f + d * f + b * h - d * h);
         final double y = - (g * x - i * x + i * f - h * g) / (-f + h);
 
+        // Find the normal
+        final double normalX = -(d - b);
+        final double normalY = a - c;
+
+        // Find the distance between the start and end
+        Vector2d start = result.start;
+        Vector2d end = Vector2d.of(x, y);
+
+        double distX = start.x() - end.x();
+        double distY = start.y() - end.y();
+        double dist = Math.sqrt(distX * distX + distY * distY);
+
+        result.intersection = end;
+        result.normal = Vector2d.of(normalX, normalY);
+
         // Assert that intersection was in bounds set by second line
         if (isNotBetweenUnordered(x, f, h)) {
-            return null;
+            return Intersection.Result.none(area);
         }
 
         if (isNotBetweenUnordered(y, h, i)) {
-            return null;
+            return Intersection.Result.none(area);
         }
 
-        switch (direction) {
-            default:
-            case ANY: {
-                return Vector2d.of(x, y);
+        if (direction == Intersection.Direction.ANY) {
+            return Intersection.Result.of(result.intersection, result.normal, area, dist);
+        }
+
+        // Determine if the direction is correct
+        double dotProduct = (c - a) * (x - a) + (d - b) * (y - b);
+
+        if (direction == Intersection.Direction.FORWARDS) {
+            if (dotProduct < 0) {
+                return Intersection.Result.none(area);
             }
-            case FORWARDS: {
-                // Find dot
-                double dotProduct = (c - a) * (x - a) + (d - b) * (y - b);
-
-                if (dotProduct >= 0) {
-                    return Vector2d.of(x, y);
-                }
-
-                return null;
-            }
-            case BACKWARDS: {
-                // Find dot
-                double dotProduct = (c - a) * (x - a) + (d - b) * (y - b);
-
-                if (dotProduct <= 0) {
-                    return Vector2d.of(x, y);
-                }
-
-                return null;
+        } else {
+            if (dotProduct > 0) {
+                return Intersection.Result.none(area);
             }
         }
+
+        return Intersection.Result.of(result.intersection, result.normal, area, dist);
     }
 
     @ApiStatus.Internal

@@ -3,15 +3,13 @@ package dev.emortal.rayfast.area.area3d;
 import dev.emortal.rayfast.area.Area;
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.util.Converter;
-import dev.emortal.rayfast.vector.Vector;
-import dev.emortal.rayfast.vector.Vector2d;
 import dev.emortal.rayfast.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Specifies an object that represents some arbitrary 3d area.
@@ -29,10 +27,9 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      */
     default boolean containsPoint(double pointX, double pointY, double pointZ) {
         // Find all forwards intersections
-        Collection<? extends Vector> result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
+        var result = lineIntersection(pointX, pointY, pointZ, 0.5, 0.5, 0.5, ALL_FORWARDS);
 
         // If number is odd, then return true
-        assert result != null;
         return result.size() % 2 != 0;
     }
 
@@ -56,7 +53,7 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * @param dirZ line Z direction
      * @return the computed line intersection position, null if none
      */
-    <R> @Nullable R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, @NotNull Intersection<R> intersection);
+    <R> @NotNull R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, @NotNull Intersection<R> intersection);
 
     /**
      * Returns the intersection between the specified line and this object
@@ -65,7 +62,7 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * @param dir line direction
      * @return the computed line intersection position, null if none
      */
-    default <R> @Nullable R lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir, @NotNull Intersection<R> intersection) {
         return lineIntersection(pos.x(), pos.y(), pos.z(), dir.x(), dir.y(), dir.z(), intersection);
     }
 
@@ -81,7 +78,7 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * @return true if the line intersects this object, false otherwise
      */
     default boolean lineIntersects(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
-        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY_3D) != null;
+        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY_3D).intersection() != null;
     }
 
     /**
@@ -91,8 +88,8 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
      * @param dir line direction
      * @return any line intersection position, null if none
      */
-    default Vector3d lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir) {
-        return lineIntersection(pos, dir, Intersection.ANY_3D);
+    default @Nullable Vector3d lineIntersection(@NotNull Vector3d pos, @NotNull Vector3d dir) {
+        return lineIntersection(pos, dir, Intersection.ANY_3D).intersection();
     }
 
     /**
@@ -134,10 +131,10 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
 
     class Area3dCombined implements Area3d {
 
-        private final Area3d[] all;
+        private final List<Area3d> all;
 
         public Area3dCombined(Area3d... area3ds) {
-            this.all = area3ds;
+            this.all = List.of(area3ds);
         }
 
         public Area3dCombined(Collection<Area3d> area3ds) {
@@ -160,35 +157,31 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <R> R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, Intersection<R> intersection) {
-            Intersection.Collector<R> collector = intersection.collector();
+        public <R> @NotNull R lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ, @NotNull Intersection<R> intersection) {
+            Intersection.Collector collector = intersection.collector();
+            Intersection.Orderer<Intersection.Result<Area3d, Vector3d>> orderer =
+                    (Intersection.Orderer<Intersection.Result<Area3d, Vector3d>>) intersection.orderer();
 
-            switch (collector.type()) {
-                default:
-                case ANY:
-                    for (Area3d area3d : all) {
-                        R result = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection);
+            return switch (collector) {
+                case SINGLE -> (R) all.stream()
+                        .map(area -> area.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection))
+                        .map(result -> (Intersection.Result<Area3d, Vector3d>) result)
+                        .filter(result -> result.intersection() != null)
+                        .min(orderer)
+                        .orElseGet(() -> Intersection.Result.none(this));
+                case ALL -> (R) all.stream()
+                        .map(area -> area.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection))
+                        .map(result -> (Collection<Intersection.Result<Area3d, Vector3d>>) result)
+                        .flatMap(Collection::stream)
+                        .sorted(orderer)
+                        .collect(Collectors.toList());
+            };
+        }
 
-                        if (result != null) {
-                            return result;
-                        }
-                    }
-                    return null;
-                case ALL:
-
-                    final List<Vector3d> list = new ArrayList<>();
-
-                    for (Area3d area3d : all) {
-
-                        R result = area3d.lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, intersection);
-
-                        if (result != null) {
-                            list.addAll((Collection<Vector3d>) result);
-                        }
-                    }
-
-                    return (R) list;
-            }
+        @Override
+        public double size() {
+            // TODO: Make this work correctly, right now it is an estimate
+            return all.stream().mapToDouble(Area3d::size).sum();
         }
     }
 
