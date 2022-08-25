@@ -18,13 +18,11 @@ public interface Area2dRectangle extends Area2d {
     double maxY();
 
     @SuppressWarnings("unchecked")
-    default <R> @Nullable R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
+    default <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
         Intersection.Direction direction = intersection.direction();
-
 
         double posXb = posX + dirX;
         double posYb = posY + dirY;
-
 
         switch (intersection.collector()) {
             case SINGLE -> {
@@ -196,8 +194,12 @@ public interface Area2dRectangle extends Area2d {
         };
     }
 
+    static @NotNull Area2dRectangle of(double minX, double minY, double maxX, double maxY) {
+        return new Area2dRectangleImpl(minX, minY, maxX, maxY);
+    }
+
     @Override
-    default double size() {
+    default double area() {
         return (maxX() - minX()) * (maxY() - minY());
     }
 }

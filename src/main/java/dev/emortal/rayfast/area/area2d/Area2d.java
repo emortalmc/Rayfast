@@ -125,7 +125,7 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, Intersection<R> intersection) {
+        public <R> @NotNull R lineIntersection(double posX, double posY, double dirX, double dirY, @NotNull Intersection<R> intersection) {
             Intersection.Collector collector = intersection.collector();
             Intersection.Orderer<Intersection.Result<Area2d, Vector2d>> orderer =
                     (Intersection.Orderer<Intersection.Result<Area2d, Vector2d>>) intersection.orderer();
@@ -147,9 +147,9 @@ public interface Area2d extends Area<Vector2d>, Area2dLike {
         }
 
         @Override
-        public double size() {
+        public double area() {
             // TODO: Make this work correctly, right now it is an estimate
-            return all.stream().mapToDouble(Area2d::size).sum();
+            return all.stream().mapToDouble(Area2d::area).sum();
         }
     }
 

@@ -1,4 +1,4 @@
-package dev.emortal.rayfast.test;
+package dev.emortal.rayfast.test.benchmarks;
 
 import dev.emortal.rayfast.area.Intersection;
 import dev.emortal.rayfast.area.area2d.Area2d;
@@ -8,6 +8,7 @@ import dev.emortal.rayfast.area.area3d.Area3dLike;
 import dev.emortal.rayfast.area.area3d.Area3dRectangularPrism;
 import dev.emortal.rayfast.casting.combined.CombinedCast;
 import dev.emortal.rayfast.casting.grid.GridCast;
+import dev.emortal.rayfast.test.examples.ExampleRaycastEntity;
 import dev.emortal.rayfast.vector.Vector2d;
 import dev.emortal.rayfast.vector.Vector3d;
 
@@ -28,6 +29,7 @@ public class RunBenchmarks {
     private static Collection<Area3dLike> combinedCastAreas;
 
     public static void main(String[] args) {
+        // TODO: Use jmh to run the benchmarks
         long startMillis = System.currentTimeMillis();
         System.out.println("Setting up Area3ds");
 

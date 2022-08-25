@@ -41,10 +41,10 @@ public class Intersection2dUtils {
      * @param c the x of line A, point 2
      * @param d the y of line A, point 2
      *
-     * @param f the x of line B, point 1
-     * @param g the y of line B, point 1
-     * @param h the x of line B, point 2
-     * @param i the y of line B, point 2
+     * @param e the x of line B, point 1
+     * @param f the y of line B, point 1
+     * @param g the x of line B, point 2
+     * @param h the y of line B, point 2
      *
      * @return the intersection
      */
@@ -58,20 +58,30 @@ public class Intersection2dUtils {
             double c, double d,
 
             // Intersecting Line (Bounded)
-            double f, double g,
-            double h, double i
+            double e, double f,
+            double g, double h
     ) {
         IncompleteResult result = THREAD_LOCAL.get();
         result.start = Vector2d.of(a, b);
         result.direction = Vector2d.of(c, d);
 
-        // Intersection maths
-        // See: https://www.desmos.com/calculator/grkbrmrmsu
-
         // Find x & y
-        final double x = (a * d * f - b * c * f - a * d * h + b * c * h - a * i * f + c * i * f + a * h * g - c * h * g) /
-                (a * g - c * g - a * i + c * i - b * f + d * f + b * h - d * h);
-        final double y = - (g * x - i * x + i * f - h * g) / (-f + h);
+        double s1_x = c - a;
+        double s1_y = d - b;
+        double s2_x = g - e;
+        double s2_y = h - f;
+
+        double v = -s2_x * s1_y + s1_x * s2_y;
+        double s = (-s1_y * (a - e) + s1_x * (b - f)) / v;
+        double t = ( s2_x * (b - f) - s2_y * (a - e)) / v;
+
+        double x = a + (t * s1_x);
+        double y = b + (t * s1_y);
+
+        if (s == Double.NEGATIVE_INFINITY || s == Double.POSITIVE_INFINITY || Double.isNaN(s) ||
+            t == Double.NEGATIVE_INFINITY || t == Double.POSITIVE_INFINITY || Double.isNaN(t)) {
+            return Intersection.Result.none(area);
+        }
 
         // Find the normal
         final double normalX = -(d - b);
@@ -89,11 +99,11 @@ public class Intersection2dUtils {
         result.normal = Vector2d.of(normalX, normalY);
 
         // Assert that intersection was in bounds set by second line
-        if (isNotBetweenUnordered(x, f, h)) {
+        if (isNotBetweenUnordered(x, e, g)) {
             return Intersection.Result.none(area);
         }
 
-        if (isNotBetweenUnordered(y, h, i)) {
+        if (isNotBetweenUnordered(y, f, h)) {
             return Intersection.Result.none(area);
         }
 
@@ -116,6 +126,9 @@ public class Intersection2dUtils {
 
         return Intersection.Result.of(result.intersection, result.normal, area, dist);
     }
+
+    // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines
+// intersect the intersection point may be stored in the floats i_x and i_y.
 
     @ApiStatus.Internal
     private static boolean isNotBetweenUnordered(double number, double compare1, double compare2) {

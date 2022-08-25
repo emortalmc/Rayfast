@@ -1,4 +1,4 @@
-package dev.emortal.rayfast.test;
+package dev.emortal.rayfast.test.examples;
 
 import dev.emortal.rayfast.area.area3d.Area3d;
 import dev.emortal.rayfast.area.area3d.Area3dLike;
@@ -7,26 +7,26 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * An example usage of an entity with a bounding box.
- *
+ * <p>
  * As the entity position changes while the bounding box stays the same, this can be used for multiple raycasts
  * consecutively with no overhead.
- *
- * This is an ideal situation for rayfast.
+ * <p>
+ * This is an ideal situation for mutable shapes in rayfast.
  */
 public abstract class ExampleRaycastEntity implements Area3dLike {
 
-    abstract BoundingBox getBoundingBox();
+    public abstract BoundingBox getBoundingBox();
 
     @Override
     public @NotNull Area3d asArea3d() {
         return getBoundingBox();
     }
 
-    abstract double getX();
-    abstract double getY();
-    abstract double getZ();
+    public abstract double getX();
+    public abstract double getY();
+    public abstract double getZ();
 
-    static class BoundingBox implements Area3dRectangularPrism {
+    public static class BoundingBox implements Area3dRectangularPrism {
 
         private final ExampleRaycastEntity exampleRaycastEntity;
         private final double halfWidth;

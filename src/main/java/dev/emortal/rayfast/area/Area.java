@@ -43,5 +43,9 @@ public interface Area<V extends Vector<V>> {
      */
     <R> @Nullable R lineIntersection(@NotNull V pos, @NotNull V dir, @NotNull Intersection<R> intersection);
 
-    double size();
+    double area();
+    @Deprecated(forRemoval = true)
+    default double size() {
+        return area();
+    }
 }

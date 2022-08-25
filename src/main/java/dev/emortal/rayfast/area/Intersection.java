@@ -65,7 +65,7 @@ public interface Intersection<R> {
         Orderer<Result<Area<?>, ?>> SIZE = (a, b) -> {
             Area<?> sizeA = a.subject();
             Area<?> sizeB = b.subject();
-            return Double.compare(sizeA.size(), sizeB.size());
+            return Double.compare(sizeA.area(), sizeB.area());
         };
 
         Orderer<?> NONE = (a, b) -> 0;

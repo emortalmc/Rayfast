@@ -93,6 +93,21 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
     }
 
     /**
+     * Returns any intersection between the specified line and this area
+     * <br><br>
+     * @param posX line x position
+     * @param posY line y position
+     * @param posZ line z position
+     * @param dirX line x direction
+     * @param dirY line y direction
+     * @param dirZ line z direction
+     * @return any line intersection position, null if none
+     */
+    default @Nullable Vector3d lineIntersection(double posX, double posY, double posZ, double dirX, double dirY, double dirZ) {
+        return lineIntersection(posX, posY, posZ, dirX, dirY, dirZ, Intersection.ANY_3D).intersection();
+    }
+
+    /**
      * Returns true if the specified line intersects this area.
      * <br><br>
      * @param pos line position
@@ -179,9 +194,9 @@ public interface Area3d extends Area<Vector3d>, Area3dLike {
         }
 
         @Override
-        public double size() {
+        public double area() {
             // TODO: Make this work correctly, right now it is an estimate
-            return all.stream().mapToDouble(Area3d::size).sum();
+            return all.stream().mapToDouble(Area3d::area).sum();
         }
     }
 

@@ -215,7 +215,7 @@ public interface Area3dRectangularPrism extends Area3d {
                               FunctionalInterfaces.DoubleWrapper<T> maxZGetter) {
         return new Area3dRectangularPrism() {
             @Override
-            public double size() {
+            public double area() {
                 double minX = minX(); double minY = minY(); double minZ = minZ();
                 double maxX = maxX(); double maxY = maxY(); double maxZ = maxZ();
                 return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
@@ -279,8 +279,22 @@ public interface Area3dRectangularPrism extends Area3d {
         );
     }
 
+    /**
+     * Creates a new immutable {@link Area3dRectangularPrism} instance.
+     * @param minX the minimum x value
+     * @param minY the minimum y value
+     * @param minZ the minimum z value
+     * @param maxX the maximum x value
+     * @param maxY the maximum y value
+     * @param maxZ the maximum z value
+     * @return the new instance
+     */
+    static Area3dRectangularPrism of(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return new Area3dRectangularPrismImpl(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
     @Override
-    default double size() {
+    default double area() {
         return (maxX() - minX()) * (maxY() - minY()) * (maxZ() - minZ());
     }
 }

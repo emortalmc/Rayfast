@@ -47,7 +47,8 @@ public interface Area2dPolygon extends Area2d {
                     })
                     .min(orderer)
                     .orElseGet(() -> Intersection.Result.none(this));
-            case ALL -> (R) lines().entrySet().stream()
+            case ALL -> (R) lines().entrySet()
+                    .stream()
                     .map(entry -> {
                         Vector2d pos1 = entry.getKey();
                         Vector2d pos2 = entry.getValue();
@@ -71,7 +72,7 @@ public interface Area2dPolygon extends Area2d {
     /**
      * Generates a wrapper for the specified object using the specified getters.
      * <br><br>
-     * This is a sub-optimal implementation. An ideal implementation implements the
+     * This is a suboptimal implementation. An ideal implementation implements the
      * Area2dPolygon interface directly on the object.
      *
      * @param object the object to wrap
@@ -84,8 +85,15 @@ public interface Area2dPolygon extends Area2d {
     }
 
     @Override
-    default double size() {
-        // TODO: Polygon size
-        return 0;
+    default double area() {
+        Map<Vector2d, Vector2d> lines = lines();
+        double area = 0;
+        for (Map.Entry<Vector2d, Vector2d> entry : lines.entrySet()) {
+            Vector2d pos1 = entry.getKey();
+            Vector2d pos2 = entry.getValue();
+            area += pos1.x() * (pos2.y() - pos1.y()) + pos2.x() * (pos1.y() - pos2.y());
+        }
+        area /= 2;
+        return area;
     }
 }
