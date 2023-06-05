@@ -1,0 +1,27 @@
+name: Publish to development (snapshot) repo
+on: push
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get Commit Hash
+        id: commit
+        uses: pr-mpt/actions-commit-hash@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Publish package
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: publishMavenPublicationToDevelopmentRepository
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_SECRET: ${{ secrets.MAVEN_SECRET }}
+          COMMIT_HASH: ${{ steps.commit.outputs.hash }}
+          COMMIT_HASH_SHORT: ${{ steps.commit.outputs.short }}
