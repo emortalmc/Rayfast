@@ -24,7 +24,7 @@ java {
 publishing {
     repositories {
         maven {
-            name = "snapshots"
+            name = "development"
             url = uri("https://repo.emortal.dev/snapshots")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
